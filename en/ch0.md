@@ -3,12 +3,24 @@
 
 ### **31/05/2016**
 
-I start today the development of a Tetris clone, my inspiration come from the gameboy/nes version mostly.
+![Background](img/ch0/background.png)
 
-I have vaguely an idea about a grid system that could work fine with this game, I need to make differents tests to be sure.
+I am starting today the development of a Tetris clone, my inspiration come from the [gameboy/nes](https://en.wikipedia.org/wiki/Tetris) version mostly.
 
-I started today by drawing on paper all the assets and screen I will need for the game, it give me an overall reference that I will use as I develop the game.
+We can choose the speed level we start, every ten lines, the level go up, to finish the game from level 0, 100 lines must be done. I plan to do some classic sound for the brick and remake the best I can the famous Korobeïniki russian song.
 
-I find out than this kind of drawing/concept art or technical/design document are very helpful when we spend a lot of time later on little details. At some point we are so focused on them than it is good to have the opportunity to step back and see globally what we are doing.
+I have vaguely an idea about a grid system that could work fine with this game, I need to make differents tests to be sure how all will work together, lot of bugs ahead I imagine.
 
-For a game like tetris, I won't forget what the game is about, but still, it is good habit to take to keep somewhere what I am actually doing and not start from zero at some point just because I forgot what I wanted to do.
+I did draw on paper all the assets and screens I will need for the game, it give me an overall reference that I will use as I develop the game.
+
+![Reference](img/ch0/reference.png)
+
+I find out than it is good habit to keep somewhere of drawing/concept art and/or technical/design document which are very helpful when we spend a lot of time later on little details. 
+
+At some point we are so focused on them than it is good to have the opportunity to step back and see globally what we are doing globally.
+
+I wish to finish the game + tutorial, in one month. We will see how it is going.
+
+I also started to play a bit with superpowers, nothing fancy, I just set the stage to start the dev.
+
+![Tile Map](img/ch0/tilemap.png)
