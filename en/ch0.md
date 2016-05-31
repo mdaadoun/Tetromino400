@@ -3,7 +3,7 @@
 
 ### **31/05/2016**
 
-I start today the development of a Tetris clone, my inspiration come from the gameboy version mostly.
+I start today the development of a Tetris clone, my inspiration come from the gameboy/nes version mostly.
 
 I have vaguely an idea about a grid system that could work fine with this game, I need to make differents tests to be sure.
 
