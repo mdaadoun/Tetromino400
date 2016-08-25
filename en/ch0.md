@@ -24,3 +24,15 @@ I wish to finish the game + tutorial, in one month. We will see how it is going.
 I also started to play a bit with superpowers, nothing fancy, I just set the stage to start the dev.
 
 ![Tile Map](img/ch0/tilemap.png)
+
+### **24/08/2016**
+
+![Starting](img/ch0/start.png)
+
+I start today the development of the game, I did test with the grid and simple movement of a shape inside it.
+
+* I work on a canvas of 400x400 pixels, working with 25 units of 16 pixels width and height.
+
+### **25/08/2016**
+
+The tetris pieces appear randomly in the grid and each piece can be rotated using UP or SPACE keyboard.
