@@ -36,3 +36,14 @@ I start today the development of the game, I did test with the grid and simple m
 ### **25/08/2016**
 
 The tetris pieces appear randomly in the grid and each piece can be rotated using UP or SPACE keyboard.
+
+### **26/08/2016**
+
+Collision system : The pieces can't go through the other blocks on the grid.
+
+### **29/08/2016**
+
+* A function destroy a piece when blocked, create a new one
+* The collision system, rotation, moving is set
+
+![Pile stacked](img/ch0/stacking.png)
