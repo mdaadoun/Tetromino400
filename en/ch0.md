@@ -47,3 +47,7 @@ Collision system : The pieces can't go through the other blocks on the grid.
 * The collision system, rotation, moving is set
 
 ![Pile stacked](img/ch0/stacking.png)
+
+### **20/11/2016**
+
+* I returned to the tetris code to continue the development.
