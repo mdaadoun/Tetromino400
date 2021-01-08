@@ -10,6 +10,21 @@ screensizes = {
     'lines':30
 }
 
+# COLORS DATA
+
+colorslist = {
+    'black':(0,0,0),
+    'white':(255,255,255),
+    'grey':(128,128,128),
+    'cyan':(0,255,255),
+    'blue':(0,0,255),
+    'orange':(255,165,0),
+    'yellow':(255,255,0),
+    'red':(255,0,0),
+    'green':(0,255,0),
+    'purple':(255,0,255)
+}
+
 # GAME STATES
 '''
 STATES :
@@ -19,8 +34,9 @@ STATES :
 3 : SCORE : Highscores screen
 4 : NEW : New Game screen / Start Settings
 5 : PLAY : Game Playing screen
-6 : OVER : Game Over screen
-7 : EXIT : Flag to Exit the Game
+6 : CONFIRM : Confirm end game
+7 : OVER : Game Over screen
+8 : EXIT : Flag to Exit the Game
 '''
 
 GSC = gamestatescodes = {
@@ -30,11 +46,12 @@ GSC = gamestatescodes = {
     'SCORE':3,
     'NEW':4,
     'PLAY':5,
-    'OVER':6,
-    'EXIT':7
+    'CONFIRM':6,
+    'OVER':7,
+    'EXIT':8
 }
 
-gamestates = ['TITLE', 'INTRO', 'MENU', 'SCORE', 'NEW', 'PLAY', 'OVER', 'EXIT']
+gamestates = ['TITLE', 'INTRO', 'MENU', 'SCORE', 'NEW', 'PLAY', 'CONFIRM', 'OVER', 'EXIT']
 
 # GAME DATA CONTENT
 '''
@@ -45,9 +62,7 @@ statecontent = {
     'GLOBAL': {
         'continue': [(8*PX,29*PX),"Press Space to continue", 'black'],
         'menu_continue': [(4*PX,29*PX),"Select An Option and Press Space", 'black'],
-        'new_continue': [(4*PX,29*PX),"Change Settings and Press Space", 'black'],
-        'confirm': [(8*PX,12*PX),"Are you sure you want to leave ?", 'white'],
-        'info': [(8*PX,14*PX),"The score will be saved.", 'white'] 
+        'new_continue': [(4*PX,29*PX),"Change Settings and Press Space", 'black']
     },
     'TITLE': {
         'text': [
@@ -124,69 +139,168 @@ statecontent = {
     },
     'SCORE': {
         'text':[
-            [(15*PX,4*PX),"HIGHSCORES",'blue']
+            [(15*PX,1*PX),"HIGHSCORES",'yellow']
         ]
+    },
+    'CONFIRM': {
+        'confirm': [(7*PX,12*PX),"You really want to leave ?", 'red'],
+        'info': [(7*PX,14*PX),"The score will be saved.", 'grey'],
+        'continue': [(7*PX,16*PX),"Press space to leave.", 'black'],
+        'box': (4*GRID, 10*GRID, 32*GRID, 9*GRID)
     }
-}
-
-# COLORS DATA
-
-colorslist = {
-    'black':(0,0,0),
-    'white':(255,255,255),
-    'grey':(128,128,128),
-    'cyan':(0,255,255),
-    'blue':(0,0,255),
-    'orange':(255,165,0),
-    'yellow':(255,255,0),
-    'red':(255,0,0),
-    'green':(0,255,0),
-    'purple':(255,0,255)
 }
 
 # TETROMINO SHAPES
 
-shapes_I = []
+shapes_I = [
+    [
+        (0,0,1,0),
+        (0,0,1,0),
+        (0,0,1,0),
+        (0,0,1,0)
+    ],
+    [
+        (0,0,0,0),
+        (0,0,0,0),
+        (1,1,1,1),
+        (0,0,0,0)
+    ]
+]
 
-shapes_J = []
+shapes_J = [
+    [
+        (0,1,0),
+        (0,1,0),
+        (1,1,0)
+    ],
+    [
+        (1,0,0),
+        (1,1,1),
+        (0,0,0)
+    ],
+    [
+        (0,1,1),
+        (0,1,0),
+        (0,1,0)
+    ],
+    [
+        (0,0,0),
+        (1,1,1),
+        (0,0,1)
+    ]
+]
 
-shapes_L = []
+shapes_L = [
+    [
+        (0,1,0),
+        (0,1,0),
+        (0,1,1)
+    ],
+    [
+        (0,0,0),
+        (1,1,1),
+        (1,0,0)
+    ],
+    [
+        (1,1,0),
+        (0,1,0),
+        (0,1,0)
+    ],
+    [
+        (0,0,1),
+        (1,1,1),
+        (0,0,0)
+    ]
+]
 
-shapes_O = []
+shapes_O = [
+    [
+        (1,1),
+        (1,1)
+    ]
+]
 
-shapes_Z = []
+shapes_Z = [
+    [
+        (0,1,0),
+        (1,1,0),
+        (1,0,0)  
+    ],
+    [
+        (1,1,0),
+        (0,1,1),
+        (0,0,0)  
+    ]
+]
 
-shapes_S = []
+shapes_S = [
+    [
+        (0,1,0),
+        (1,1,0),
+        (1,0,0)  
+    ],
+    [
+        (1,1,0),
+        (0,1,1),
+        (0,0,0)  
+    ]
+]
 
-shapes_T = []
+shapes_T = [
+    [
+        (0,1,0),
+        (0,1,1),
+        (0,1,0)
+    ],
+    [
+        (0,0,0),
+        (1,1,1),
+        (0,1,0)
+    ],
+    [
+        (0,1,0),
+        (1,1,0),
+        (0,1,0)
+    ],
+    [
+        (0,1,0),
+        (1,1,1),
+        (0,0,0)
+    ]
+]
 
 tetrominoshapes = {
     'I': {
         'shape': shapes_I,
-        'color': 'cyan'
+        'color': colorslist['cyan']
     },
     'J': {
         'shape': shapes_J,
-        'color': 'blue'
+        'color': colorslist['blue']
     },
     'L': {
         'shape': shapes_L,
-        'color': 'orange'
+        'color': colorslist['orange']
     },
     'O': {
         'shape': shapes_O,
-        'color': 'yellow'
+        'color': colorslist['yellow']
     },
     'Z': {
         'shape': shapes_Z,
-        'color': 'red'
+        'color': colorslist['red']
     },
     'S': {
         'shape': shapes_S,
-        'color': 'green'
+        'color': colorslist['green']
     },
     'T': {
         'shape': shapes_T,
-        'color': 'purple'
+        'color': colorslist['purple']
     }
+}
+
+board = {
+    'position':(5*PX,5*PX),
+    'size':(10*PX, 20*PX)
 }
