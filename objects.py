@@ -1,4 +1,5 @@
 import random
+from api import *
 
 class Tetromino:
     
@@ -83,16 +84,28 @@ class Tetromino:
 
 class Board:
     def __init__(self, data):
-        self.x = data['position'][0]
-        self.y = data['position'][1]
         self.width = data['size'][0]
         self.height = data['size'][1]
+        self.update_surface = True
 
-    def draw(self):
-        print(self.x)
-        print(self.y)
-        print(self.width)
-        print(self.height)
+    def draw(self, surface, grid, debug):
+        print('draw board')
+        # draw borders
+        color = 'grey'
+        rectangle(surface, (0,0,grid,self.height),color)
+        rectangle(surface, (grid,self.height-grid,self.width-grid,grid),color)
+        rectangle(surface, (self.width-grid,0,grid,self.height-grid),color)
+
+        if debug == True:
+            self.draw_grid(surface,grid)
+
+    def draw_grid(self, surface, grid):
+        color = 'red'
+        for x in range(0, self.width, grid):
+            for y in range(0, self.height, grid):
+                line(surface,(0,y), (self.width, y), color)
+                line(surface,(x,0), (x, self.height), color)
+        
 
 class Stats:
     def __init__(self):

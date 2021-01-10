@@ -1,3 +1,4 @@
+
 # 1 GRID PIXEL (PX) = SIZE GRID = 8 pixel
 PX = GRID = 8
 
@@ -11,7 +12,6 @@ screensizes = {
 }
 
 # COLORS DATA
-
 colorslist = {
     'black':(0,0,0),
     'white':(255,255,255),
@@ -151,7 +151,6 @@ statecontent = {
 }
 
 # TETROMINO SHAPES
-
 shapes_I = [
     [
         (0,0,1,0),
@@ -224,12 +223,12 @@ shapes_Z = [
     [
         (0,1,0),
         (1,1,0),
-        (1,0,0)  
+        (1,0,0)
     ],
     [
         (1,1,0),
         (0,1,1),
-        (0,0,0)  
+        (0,0,0)
     ]
 ]
 
@@ -237,12 +236,12 @@ shapes_S = [
     [
         (0,1,0),
         (1,1,0),
-        (1,0,0)  
+        (1,0,0)
     ],
     [
         (1,1,0),
         (0,1,1),
-        (0,0,0)  
+        (0,0,0)
     ]
 ]
 
@@ -301,6 +300,36 @@ tetrominoshapes = {
 }
 
 board = {
-    'position':(5*PX,5*PX),
-    'size':(10*PX, 20*PX)
+    'position':(6*PX,6*PX),
+    'size':(12*PX, 21*PX)
 }
+
+infos = {
+    'position':(20*PX,6*PX),
+    'size':(12*PX, 21*PX),
+    'position_next':(4*PX,2*PX),
+    'size_next':(8*PX, 8*PX),
+    'texts': (
+        ('NEXT',(2*PX,0)),
+        ('LINES',(2*PX,12*PX)),
+        ('SCORE',(2*PX,14*PX)),
+        ('LEVEL',(2*PX,16*PX)),
+        ('TIME',(2*PX,18*PX))
+    )
+}
+
+# GLOBAL DATA
+'''
+    Prepare the datas for import
+'''
+WIDTH = screensizes['width']
+HEIGHT = screensizes['height']
+GRID = screensizes['grid']
+LINES = screensizes['lines']
+COLUMNS = screensizes['columns']
+GSC = gamestatescodes # GSC = Game State Code
+STATES = gamestates
+CONTENT = statecontent
+COLORS = colorslist
+BOARD = board
+TETROMINOS = tetrominoshapes

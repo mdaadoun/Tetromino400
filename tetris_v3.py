@@ -1,109 +1,12 @@
-import sys
-from math import ceil
+from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOS
+
 import pygame
 from pygame import freetype, gfxdraw
-import data
+
+from api import *
+
 import objects
-
-
-# DEBUG HELPER
-'''
-    debug_draw_grid : display a 8x8 grid on all the screen surface
-'''
-
-DEBUG = True
-DEBUG_GRID = False
-DEBUG_STATS = False
-DEBUG_PLAY = True
-
-def debug_draw_grid():
-    '''
-        Draw a 8x8 red grid over all the screen
-    '''
-    if DEBUG_GRID:
-        for i in range(0, WIDTH, GRID):
-            line(screen, (i,0), (i,HEIGHT), 'red')
-            if i < HEIGHT:
-                line(screen, (0,i), (WIDTH,i), 'red')
-
-def debug_write_stats():
-    '''
-        Write game states like frames per seconds, time since program launched, etc...
-    '''
-    if DEBUG_STATS:
-        time = pygame.time.get_ticks()
-        timer = time - start_ticks
-        fps = clock.get_fps()
-        ticks = clock.get_time()
-        rectangle(screen,(0,0,WIDTH,100), 'white')
-        write(screen, (0,0), 'updated frames: '+str(updated_frames))
-        write(screen, (0,GRID), 'frames: '+str(frames))
-        write(screen, (0,2*GRID), 'mlsc since last frame: ' + str(ticks))
-        write(screen, (0,3*GRID), 'mlsc since program start: ' + str(time))
-        write(screen, (0,4*GRID), 'secondes since program start: ' + str(ceil(time/1000)))
-        write(screen, (0,5*GRID), 'mlsc since loop start (' + str(start_ticks) + '): ' + str(timer))
-        write(screen, (0,6*GRID), 'secondes since loop start (' + str(start_ticks) + '): ' + str(ceil(timer/1000)))
-        write(screen, (0,7*GRID), 'fps:' + str(fps))
-
-def debug_game():
-    '''
-        Set the game to start at play mode directly
-    '''
-    if DEBUG_PLAY:
-        global game_state,new_game
-        game_state = GSC['PLAY']
-        new_game = True
-
-# GLOBAL DATA
-'''
-    Get the datas from external data file
-'''
-WIDTH = data.screensizes['width']
-HEIGHT = data.screensizes['height']
-GRID = data.screensizes['grid']
-LINES = data.screensizes['lines']
-COLUMNS = data.screensizes['columns']
-GSC = data.gamestatescodes # GSC = Game State Code
-STATES = data.gamestates
-CONTENT = data.statecontent
-COLORS = data.colorslist
-BOARD = data.board
-TETROMINOS = data.tetrominoshapes
-
-
-# HELPER FUNCTIONS
-'''
-    clear : fill screen with a color to all screen surface
-    write : write a text at position (x,y)
-    line : draw a line between position 1 (x1,y1) and position 2 (x2,y2)
-    rectangle : draw a rectangle with position top left and width and height (x,y,width,height)
-'''
-
-def clear(surface, color='black'):
-    surface.fill(COLORS[color])
-
-def write(surface, position, text, color='grey', size=GRID):
-    font.render_to(surface,position,text,COLORS[color],None,0,0,size)
-
-def line(surface, pos1, pos2, color='grey'):
-    pygame.gfxdraw.line(surface,pos1[0],pos1[1],pos2[0],pos2[1],COLORS[color])
-
-def rectangle(surface, rect, color='grey',fill=True):
-    if fill:
-        pygame.gfxdraw.box(surface,rect,COLORS[color])
-    else:
-        pygame.gfxdraw.rectangle(surface,rect,COLORS[color])
-
-def pixel(surface, position, color='grey'):
-    pygame.gfxdraw.pixel(surface,position[0],position[1],COLORS[color])
-
-def exit():
-    global update_screen
-    if game_state == GSC['EXIT']:
-        update_screen = False
-        return False
-    else:
-        return True
+from debug import *
 
 
 # START VARIABLES
@@ -123,8 +26,8 @@ new_game = False
 pause_game = False
 
 if DEBUG == True:
-    debug_game()
-
+    game_state = debug_game()[0]
+    new_game = debug_game()[1]
 
 # INIT PROCESS
 
@@ -157,13 +60,14 @@ def init_arrow_surface():
         0. surface
         1. arrow selection start as 0
     '''
-    global arrow
-    arrow = [pygame.Surface((8,8)), 0]
+    global arrow_surface, arrow_selection
+    arrow_surface = pygame.Surface((8,8))
+    arrow_selection = 0
 
 
 def init_board_surface():
     global board_surface
-    pass
+    board_surface = pygame.Surface(BOARD['size'])
 
 def init_statistics_surface():
     global statistics_surface
@@ -179,7 +83,7 @@ def init_play():
 
     Stats = objects.Stats()
     init_statistics_surface()
-    
+
     Tetrominos = []
     for t in TETROMINOS:
         Tetrominos.append(objects.Tetromino(t, TETROMINOS[t]))
@@ -220,7 +124,7 @@ def game_drawing():
             updated_frames +=1
 
         pygame.display.update()
-        
+
 def draw_screen():
     '''
         Clear screen, then if Debug, draw a grid.
@@ -233,7 +137,7 @@ def draw_screen():
     rectangle(screen, (0,0,WIDTH,HEIGHT),'grey', False)
 
     if DEBUG == True:
-        debug_draw_grid()
+        debug_draw_grid(screen)
 
     if game_state == GSC['PLAY']:
         pass
@@ -250,7 +154,7 @@ def draw_text_from_content():
         position = d[0]
         text = d[1]
         color = d[2]
-        write(screen, position, text, color)
+        write(font, screen, position, text, color)
 
 def draw_global_message():
     if game_state == GSC['MENU']:
@@ -263,7 +167,7 @@ def draw_global_message():
     text = datas[1]
     color = datas[2]
     rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1))
-    write(screen, position, text, color)
+    write(font, screen, position, text, color)
 
 def draw_confirm_box():
     datas = [CONTENT['CONFIRM']['confirm'], CONTENT['CONFIRM']['info'], CONTENT['CONFIRM']['continue']]
@@ -274,29 +178,28 @@ def draw_confirm_box():
         position = d[0]
         text = d[1]
         color = d[2]
-        write(screen, position, text, color)
+        write(font, screen, position, text, color)
 
 def draw_arrow():
     '''
-        first check if arrow is defined, if not, init arrow
+        first check if arrow surface is defined, if not, init arrow
         then load the correct shape and selection
     '''
     try:
-        arrow
+        arrow_surface
     except NameError:
         init_arrow_surface()
 
-    surface = arrow[0]
     shape = get_arrow_shape()
     color = get_arrow_selection()['color']
 
-    clear(surface)
+    clear(arrow_surface)
     x = 0
     y = 0
     for i in shape:
         for j in i:
             if j == 1:
-                pixel(surface, (x,y), color)
+                pixel(arrow_surface, (x,y), color)
             x += 1
         y += 1
         x = 0
@@ -305,7 +208,11 @@ def draw_arrow():
 
 def draw_play():
     #draw_game_board
-    Board.draw()
+    if Board.update_surface == True:
+        position = BOARD['position']
+        Board.draw(board_surface, GRID, DEBUG)
+        screen.blit(board_surface, position)
+        Board.update_surface = False
     #draw_current_tetromino
     #draw_next_tetromino
     #draw_informations
@@ -331,14 +238,12 @@ def draw_informations():
 # ARROW FUNCTIONS
 
 def clear_arrow():
-    surface = arrow[0]
-    clear(surface)
+    clear(arrow_surface)
     display_arrow_surface()
 
 def display_arrow_surface():
-    surface = arrow[0]
     position = get_arrow_selection()['position']
-    screen.blit(surface, position)
+    screen.blit(arrow_surface, position)
 
 def get_arrow_shape():
     return CONTENT[STATES[game_state]]['arrowshape']
@@ -347,23 +252,23 @@ def get_arrow_selection():
     '''
         get the content and return a dictionnary with position, color and target of the arrow
     '''
-    selection = arrow[1]
+    selection = arrow_selection
     content = CONTENT[STATES[game_state]]['arrowselect'][selection]
     data = {
         'position': content[0],
         'color': content[1],
-        'target': content [2]
+        'target': content[2]
     }
     return data
 
 def update_arrow_selection(direction):
-    global arrow
+    global arrow_selection
     index_max = len(CONTENT[STATES[game_state]]['arrowselect']) - 1
-    arrow[1] += direction
-    if arrow[1] < 0:
-        arrow[1] = index_max
-    elif arrow[1] > index_max:
-        arrow[1] = 0
+    arrow_selection += direction
+    if arrow_selection < 0:
+        arrow_selection = index_max
+    elif arrow_selection > index_max:
+        arrow_selection = 0
 
 def move_arrow(key):
     '''
@@ -376,9 +281,10 @@ def move_arrow(key):
         2 : LEFT
         3 : RIGHT
     '''
+    
     if game_state == GSC['MENU']:
         if key == 0:
-           update_arrow_selection(-1) 
+           update_arrow_selection(-1)
         elif key == 1:
            update_arrow_selection(1)
     elif game_state == GSC['NEW']:
@@ -389,7 +295,7 @@ def move_arrow(key):
            #change setting function
            print("change setting")
         elif key == 2:
-           update_arrow_selection(-1) 
+           update_arrow_selection(-1)
         elif key == 3:
            update_arrow_selection(1)
 
@@ -418,7 +324,6 @@ def validation_key():
         * EXIT : Flag to Exit the Game
     '''
     global game_state, update_screen, update_arrow, pause_game, new_game
-
     if game_state == GSC['PLAY']:
         print('space not a validation key, but a game input')
     elif game_state == GSC['TITLE']:
@@ -439,13 +344,14 @@ def validation_key():
         new_game = True
     elif game_state == GSC['MENU']:
         game_state = get_arrow_selection()['target']
-        update_screen = True
+        if not game_state == GSC['EXIT']:
+            update_screen = True
         if game_state == GSC['NEW']:
             update_arrow = True
 
 def escape_key():
     '''
-        Most game states return to MENU state, 
+        Most game states return to MENU state,
         but in PLAY state ask a confirmation before
         in CONFIRM state which pause the game, cancel the confirm state
         in MENU state leave the game
@@ -495,6 +401,7 @@ def check_inputs():
         * the 4 arrows input
         check game_state to return True or False to loop running
     '''
+    global game_state
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_state = GSC['EXIT']
@@ -511,7 +418,7 @@ def check_inputs():
                 move_key(2)
             if event.key == pygame.K_RIGHT:
                 move_key(3)
-    return exit()
+    return exit(game_state)
 
 
 # CHECK UPDATES
@@ -526,20 +433,13 @@ def check_play():
         init_play()
         new_game = False
         update_play = True
-    
-    #check and update
-    #draw board, tetromino, infos
+
     #tetromino moving
-    #play_game()
-    #check board
+    #check and update board, tetromino, infos
     #update datas
 
 
 # MAIN GAME LOOP
-
-def quit():
-    pygame.quit()
-    sys.exit()
 
 def game_loop():
     '''
@@ -569,11 +469,11 @@ def game_loop():
 
         if DEBUG:
             frames += 1
-            debug_write_stats()
-            pygame.display.update()      
-        
+            debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames)
+            pygame.display.update()
+
         clock.tick(30)
-    
+
     quit()
 
 
