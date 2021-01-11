@@ -4,22 +4,30 @@ from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLO
 
 # HELPER FUNCTIONS
 '''
-    clear : fill screen with a color to all screen surface
-    write : write a text at position (x,y)
-    line : draw a line between position 1 (x1,y1) and position 2 (x2,y2)
-    rectangle : draw a rectangle with position top left and width and height (x,y,width,height)
 '''
 
 def clear(surface, color='black'):
+    '''
+        fill screen with a color to all screen surface
+    '''
     surface.fill(COLORS[color])
 
 def write(font, surface, position, text, color='grey', size=GRID):
+    '''
+        write a text at position (x,y)
+    '''
     font.render_to(surface,position,text,COLORS[color],None,0,0,size)
 
 def line(surface, pos1, pos2, color='grey'):
+    '''
+        draw a line between position 1 (x1,y1) and position 2 (x2,y2)
+    '''
     pygame.gfxdraw.line(surface,pos1[0],pos1[1],pos2[0],pos2[1],COLORS[color])
 
 def rectangle(surface, rect, color='grey',fill=True):
+    '''
+        draw a rectangle with position top left and width and height (x,y,width,height)
+    '''
     if fill:
         pygame.gfxdraw.box(surface,rect,COLORS[color])
     else:
