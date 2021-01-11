@@ -1,14 +1,14 @@
 from math import ceil
 from api import *
-from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOS
+from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOSHAPES
 
 # DEBUG HELPER
 '''
     debug_draw_grid : display a 8x8 grid on all the screen surface
 '''
 
-DEBUG = True
-DEBUG_GRID = False
+DEBUG = False 
+DEBUG_GRID = True
 DEBUG_STATS = False
 DEBUG_PLAY = True
 
@@ -43,7 +43,7 @@ def debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames):
 
 def debug_game():
     '''
-        Set the game to start at play mode directly
+        Return the game data to start at play mode directly
     '''
     if DEBUG_PLAY:
         return (GSC['PLAY'], True)

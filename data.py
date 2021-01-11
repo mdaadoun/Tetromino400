@@ -300,23 +300,29 @@ tetrominoshapes = {
 }
 
 board = {
-    'position':(6*PX,6*PX),
-    'size':(12*PX, 21*PX)
+    'surface_size':(12*PX, 21*PX),
+    'surface_position':(5*PX,6*PX)
 }
 
-infos = {
-    'position':(20*PX,6*PX),
-    'size':(12*PX, 21*PX),
-    'position_next':(4*PX,2*PX),
+stats = {
+    'surface_size':(12*PX, 24*PX),
+    'surface_position':(23*PX,3*PX),
+    'position_next':(2*PX,0*PX),
     'size_next':(8*PX, 8*PX),
-    'texts': (
-        ('NEXT',(2*PX,0)),
-        ('LINES',(2*PX,12*PX)),
-        ('SCORE',(2*PX,14*PX)),
-        ('LEVEL',(2*PX,16*PX)),
-        ('TIME',(2*PX,18*PX))
+    'stats': (
+        ('NEXT',(4*PX,0),None),
+        ('LINES',(2*PX,9*PX),'0'),
+        ('SCORE',(2*PX,13*PX),'0000'),
+        ('LEVEL',(2*PX,17*PX),'0'),
+        ('TIME',(2*PX,21*PX),'00:00:00')
     )
 }
+
+tetromino = {
+    'surface_size':(4*PX, 4*PX),
+    'surface_position':(9*PX, 2*PX)
+}
+
 
 # GLOBAL DATA
 '''
@@ -332,4 +338,6 @@ STATES = gamestates
 CONTENT = statecontent
 COLORS = colorslist
 BOARD = board
-TETROMINOS = tetrominoshapes
+STATS = stats
+TETROMINO = tetromino
+TETROMINOSHAPES = tetrominoshapes

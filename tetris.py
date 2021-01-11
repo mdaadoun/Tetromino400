@@ -1,4 +1,5 @@
-from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOS
+from random import randrange
+from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS
 
 import pygame
 from pygame import freetype, gfxdraw
@@ -33,14 +34,16 @@ if DEBUG == True:
 
 def init_screen():
     global screen
-    flags = pygame.NOFRAME|pygame.SCALED
-    #flags = pygame.FULLSCREEN|pygame.SCALED
+    if DEBUG:
+        flags = pygame.NOFRAME|pygame.SCALED
+    else:
+        flags = pygame.FULLSCREEN|pygame.SCALED
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     title = "Tetris v3"
     pygame.display.set_caption(title)
 
 def init_font():
-    global font 
+    global font
     freetype.init()
     font = freetype.Font("prstartk.ttf")
 
@@ -67,35 +70,42 @@ def init_arrow_surface():
 
 def init_board_surface():
     global board_surface
-    board_surface = pygame.Surface(BOARD['size'])
+    board_surface = pygame.Surface(BOARD['surface_size'])
 
 def init_statistics_surface():
-    global statistics_surface
-    pass
+    global stats_surface
+    stats_surface = pygame.Surface(STATS['surface_size'])
+
+def init_tetromino_surface():
+    global tetromino_surface
+    tetromino_surface = pygame.Surface(TETROMINO['surface_size'])
 
 def init_play():
     '''
         Prepare the objects and surfaces the game will use
+        3 surfaces for 4 globals objects
+        Surfaces : board_surface, stats_surface, tetromino_surface
+        Objects : Board, Stats, PlayingTetromino, NextTetromino
+        Tetromino objects are randomly defined for the Tetrominos list
     '''
-    global Board, Tetrominos, Stats
+    global Board, Stats, Tetrominos, PlayingTetromino, NextTetromino
     Board = objects.Board(BOARD)
     init_board_surface()
-
-    Stats = objects.Stats()
+    Stats = objects.Stats(STATS)
     init_statistics_surface()
-
+    init_tetromino_surface()
     Tetrominos = []
-    for t in TETROMINOS:
-        Tetrominos.append(objects.Tetromino(t, TETROMINOS[t]))
+    for shape in TETROMINOSHAPES:
+        Tetrominos.append(objects.Tetromino(shape, TETROMINOSHAPES[shape],DEBUG))
+    PlayingTetromino = get_a_random_tetromino()
+    NextTetromino = get_a_random_tetromino()
 
-    # Get a random current tetromino and next tetromino from the tetromino list Tetrominos
-    # Create the 2 surfaces that will be used by the game for the tetromino and the next tetromino
-    # Not here, but probably a separate function, and use it the firt time here
-    # Tetromino = ...
-    # Next_Tetromino = ...
-    # init_tetromino_surface()
-    # init_nex_tetromino_surface()
-
+def get_a_random_tetromino():
+    '''
+        Return a new object tetromino, randomly chosen from the Tetrominos list
+    '''
+    choice = randrange(0,len(Tetrominos))
+    return Tetrominos[choice]
 
 # DRAWING FUNCTIONS
 
@@ -127,13 +137,10 @@ def game_drawing():
 
 def draw_screen():
     '''
-        Clear screen, then if Debug, draw a grid.
+        Clear screen, draw the program 1 px border, then if Debug, draw a grid.
         Draw the correct content according to game state
     '''
-    # global clear screen
     clear(screen)
-
-    # global game border
     rectangle(screen, (0,0,WIDTH,HEIGHT),'grey', False)
 
     if DEBUG == True:
@@ -207,33 +214,29 @@ def draw_arrow():
     display_arrow_surface()
 
 def draw_play():
-    #draw_game_board
+    '''
+        Draw the playing game surface when flag update for each is up
+        Draw game board, game stats+next tetromino, game current tetromino
+    '''
     if Board.update_surface == True:
-        position = BOARD['position']
+        position = BOARD['surface_position']
         Board.draw(board_surface, GRID, DEBUG)
         screen.blit(board_surface, position)
         Board.update_surface = False
-    #draw_current_tetromino
-    #draw_next_tetromino
-    #draw_informations
+
+    if Stats.update_surface == True:
+        position = STATS['surface_position']
+        Stats.draw(stats_surface, GRID, NextTetromino, font, DEBUG)
+        screen.blit(stats_surface, position)
+        Stats.update_stats = False
+
+    if PlayingTetromino.update_surface == True:
+        position = TETROMINO['surface_position']
+        PlayingTetromino.draw(tetromino_surface, GRID, DEBUG)
+        screen.blit(tetromino_surface, position)
+        Stats.update_tetromino = False
+
     print('draw game playing')
-
-def draw_game_board():
-    global updated_board
-    updated_board = False
-
-def draw_current_tetromino():
-    global update_tetromino
-    update_tetromino = False
-
-def draw_next_tetromino():
-    global update_next_tetromino
-    update_next_tetromino = False
-
-def draw_informations():
-    global update_game_informations
-    update_game_informations = False
-
 
 # ARROW FUNCTIONS
 
@@ -281,7 +284,7 @@ def move_arrow(key):
         2 : LEFT
         3 : RIGHT
     '''
-    
+
     if game_state == GSC['MENU']:
         if key == 0:
            update_arrow_selection(-1)
@@ -453,7 +456,7 @@ def game_loop():
     '''
     game_running = True
 
-    if DEBUG:
+    if DEBUG == True:
         global updated_frames, frames, start_ticks
         frames = 0
         updated_frames = 0
@@ -467,7 +470,7 @@ def game_loop():
 
         game_drawing()
 
-        if DEBUG:
+        if DEBUG == True:
             frames += 1
             debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames)
             pygame.display.update()
