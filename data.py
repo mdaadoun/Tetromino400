@@ -11,33 +11,35 @@ screensizes = {
     'lines':30
 }
 
-#: COLORS DATA
+#: COLORS DATA - 4 + 20 colors
 colorslist = {
     'black':(0,0,0),
+    'silver':(128,128,128),
+    'grey':(192,192,192),
     'white':(255,255,255),
-    'grey':(128,128,128),
     'cyan':(0,255,255),
+    'teal':(0,128,128),
+    'sky':(0,191,255),
+    'royal':(65,105,225),
     'blue':(0,0,255),
-    'orange':(255,165,0),
+    'navy':(0,0,128),
+    'lime':(0,255,0),
+    'green':(0,128,0),
     'yellow':(255,255,0),
+    'olive':(128,128,0),
+    'orange':(255,140,0),
+    'chocolate':(179,98,0),
+    'magenta':(255,0,255),
+    'purple':(128,0,128),
+    'pink':(255,20,147),
+    'violet':(102,0,51),
     'red':(255,0,0),
-    'green':(0,255,0),
-    'purple':(255,0,255)
+    'maroon':(128,0,0),
+    'brown':(139,69,19),
+    'earth':(69,27,4)
 }
 
-#: GAME STATES
-'''
-STATES :
-0 : TITLE : Title screen
-1 : INTRO : Introduction screen
-2 : MENU : Menu screen
-3 : SCORE : Highscores screen
-4 : NEW : New Game screen / Start Settings
-5 : PLAY : Game Playing screen
-6 : CONFIRM : Confirm end game
-7 : OVER : Game Over screen
-8 : EXIT : Flag to Exit the Game
-'''
+#: GAME STATES CODE NUMBERS
 GSC = gamestatescodes = {
     'TITLE':0,
     'INTRO':1,
@@ -50,13 +52,30 @@ GSC = gamestatescodes = {
     'EXIT':8
 }
 
-gamestates = ['TITLE', 'INTRO', 'MENU', 'SCORE', 'NEW', 'PLAY', 'CONFIRM', 'OVER', 'EXIT']
+gamestates = [
+    'TITLE',
+    'INTRO',
+    'MENU',
+    'SCORE',
+    'NEW',
+    'PLAY',
+    'CONFIRM',
+    'OVER',
+    'EXIT'
+]
+'''
+    STATES :
+    | 0 : TITLE : Title screen
+    | 1 : INTRO : Introduction screen
+    | 2 : MENU : Menu screen
+    | 3 : SCORE : Highscores screen
+    | 4 : NEW : New Game screen / Start Settings
+    | 5 : PLAY : Game Playing screen
+    | 6 : CONFIRM : Confirm end game
+    | 7 : OVER : Game Over screen
+    | 8 : EXIT : Flag to Exit the Game
+'''
 
-#: GAME DATA CONTENT
-'''
-text to write: position, text, color
-arrow selection : position, game state number
-'''
 statecontent = {
     'GLOBAL': {
         'continue': [(8*PX,29*PX),"Press Space to continue", 'black'],
@@ -70,8 +89,8 @@ statecontent = {
             [(16*PX,12*PX),"TETRIS", 'orange'],
             [(16*PX,14*PX),"TETRIS", 'yellow'],
             [(16*PX,16*PX),"TETRIS", 'red'],
-            [(16*PX,18*PX),"TETRIS", 'green'],
-            [(16*PX,20*PX),"TETRIS", 'purple']
+            [(16*PX,18*PX),"TETRIS", 'lime'],
+            [(16*PX,20*PX),"TETRIS", 'magenta']
         ]
     },
     'INTRO': {
@@ -88,7 +107,7 @@ statecontent = {
     },
     'MENU': {
         'text':[
-            [(12*PX,10*PX),"Start a New Game",'green'],
+            [(12*PX,10*PX),"Start a New Game",'lime'],
             [(12*PX,12*PX),"View Introduction",'white'],
             [(12*PX,14*PX),"View Highscores",'white'],
             [(12*PX,16*PX),"Exit Game",'red']
@@ -104,7 +123,7 @@ statecontent = {
             (0,0,0,0,0,0,0,0)
         ],
         'arrowselect':[
-            [(10*PX,10*PX),'green',GSC['NEW']],
+            [(10*PX,10*PX),'lime',GSC['NEW']],
             [(10*PX,12*PX),'white',GSC['INTRO']],
             [(10*PX,14*PX),'white',GSC['SCORE']],
             [(10*PX,16*PX),'red',GSC['EXIT']]
@@ -148,8 +167,15 @@ statecontent = {
         'box': (4*GRID, 10*GRID, 32*GRID, 9*GRID)
     }
 }
+'''
+    GAME DATA CONTENT
+    | text to write: position, text, color
+    | arrow selection : position, game state number (in menu) or setting (in new game)
+    | arrow shapes in differents menus
+    | the confirm box size to draw
+'''
 
-#: TETROMINO SHAPES
+#: I TETROMINO SHAPES
 shapes_I = [
     [
         (0,0,1,0),
@@ -165,6 +191,7 @@ shapes_I = [
     ]
 ]
 
+#: J TETROMINO SHAPES
 shapes_J = [
     [
         (0,1,0),
@@ -188,6 +215,7 @@ shapes_J = [
     ]
 ]
 
+#: L TETROMINO SHAPES
 shapes_L = [
     [
         (0,1,0),
@@ -211,6 +239,7 @@ shapes_L = [
     ]
 ]
 
+#: O TETROMINO SHAPE
 shapes_O = [
     [
         (1,1),
@@ -218,6 +247,7 @@ shapes_O = [
     ]
 ]
 
+#: Z TETROMINO SHAPES
 shapes_Z = [
     [
         (0,1,0),
@@ -231,6 +261,7 @@ shapes_Z = [
     ]
 ]
 
+#: S TETROMINO SHAPES
 shapes_S = [
     [
         (0,1,0),
@@ -244,6 +275,7 @@ shapes_S = [
     ]
 ]
 
+#: T TETROMINO SHAPES
 shapes_T = [
     [
         (0,1,0),
@@ -290,19 +322,24 @@ tetrominoshapes = {
     },
     'S': {
         'shape': shapes_S,
-        'color': colorslist['green']
+        'color': colorslist['lime']
     },
     'T': {
         'shape': shapes_T,
-        'color': colorslist['purple']
+        'color': colorslist['magenta']
     }
 }
+'''
+    Variable that gather all Tetromino Shapes with the related colors
+'''
 
+#: Board size and position
 board = {
     'surface_size':(12*PX, 21*PX),
     'surface_position':(5*PX,6*PX)
 }
 
+#: Stats & Next Tetromino Box sizes and positions + Stats titles positions and content
 stats = {
     'surface_size':(12*PX, 24*PX),
     'surface_position':(23*PX,3*PX),
@@ -317,16 +354,12 @@ stats = {
     )
 }
 
+#: Tetromino
 tetromino = {
     'surface_size':(4*PX, 4*PX),
     'surface_position':(9*PX, 2*PX)
 }
 
-
-#: GLOBAL DATA
-'''
-    Prepare the datas for import
-'''
 WIDTH = screensizes['width']
 HEIGHT = screensizes['height']
 GRID = screensizes['grid']
@@ -340,3 +373,7 @@ BOARD = board
 STATS = stats
 TETROMINO = tetromino
 TETROMINOSHAPES = tetrominoshapes
+'''
+    GLOBAL DATA
+    | Prepare all the datas to use in game
+'''
