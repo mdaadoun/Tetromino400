@@ -59,9 +59,9 @@ def init_game():
 
 def init_arrow_surface():
     '''
-        arrow array
-        0. surface
-        1. arrow selection start as 0
+    | arrow array
+    | 0. surface
+    | 1. arrow selection start as 0
     '''
     global arrow_surface, arrow_selection
     arrow_surface = pygame.Surface((8,8))

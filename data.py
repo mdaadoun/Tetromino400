@@ -1,8 +1,8 @@
 
-# 1 GRID PIXEL (PX) = SIZE GRID = 8 pixel
+#: 1 GRID PIXEL (PX) = SIZE GRID = 8 pixel
 PX = GRID = 8
 
-# SCREEN SIZE
+#: SCREEN SIZE
 screensizes = {
     'width':320,
     'height':240,
@@ -11,7 +11,7 @@ screensizes = {
     'lines':30
 }
 
-# COLORS DATA
+#: COLORS DATA
 colorslist = {
     'black':(0,0,0),
     'white':(255,255,255),
@@ -25,7 +25,7 @@ colorslist = {
     'purple':(255,0,255)
 }
 
-# GAME STATES
+#: GAME STATES
 '''
 STATES :
 0 : TITLE : Title screen
@@ -38,7 +38,6 @@ STATES :
 7 : OVER : Game Over screen
 8 : EXIT : Flag to Exit the Game
 '''
-
 GSC = gamestatescodes = {
     'TITLE':0,
     'INTRO':1,
@@ -53,7 +52,7 @@ GSC = gamestatescodes = {
 
 gamestates = ['TITLE', 'INTRO', 'MENU', 'SCORE', 'NEW', 'PLAY', 'CONFIRM', 'OVER', 'EXIT']
 
-# GAME DATA CONTENT
+#: GAME DATA CONTENT
 '''
 text to write: position, text, color
 arrow selection : position, game state number
@@ -150,7 +149,7 @@ statecontent = {
     }
 }
 
-# TETROMINO SHAPES
+#: TETROMINO SHAPES
 shapes_I = [
     [
         (0,0,1,0),
@@ -324,7 +323,7 @@ tetromino = {
 }
 
 
-# GLOBAL DATA
+#: GLOBAL DATA
 '''
     Prepare the datas for import
 '''
