@@ -62,9 +62,9 @@ def init_game():
 
 def init_arrow_surface():
     '''
-    | arrow array
-    | 0. surface
-    | 1. arrow selection start as 0
+      | arrow array
+      | 0. surface
+      | 1. arrow selection start as 0
     '''
     global arrow_surface, arrow_selection
     arrow_surface = pygame.Surface((8,8))
@@ -84,8 +84,8 @@ def init_tetromino_surface():
 
 def init_tetrominos_objects():
     '''
-        All differents tetrominos are initianilazed in a list
-        First playing Tetromino objects are randomly defined from the Tetrominos list
+      | All differents tetrominos are initianilazed in a list
+      | First playing Tetromino objects are randomly defined from the Tetrominos list
     '''
     global Tetrominos, PlayingTetromino, NextTetromino
     Tetrominos = []
@@ -96,10 +96,10 @@ def init_tetrominos_objects():
 
 def init_play():
     '''
-        Prepare the objects and surfaces the game will use
-        3 surfaces for 4 globals objects
-        Surfaces : board_surface, stats_surface, tetromino_surface
-        Objects : Board, Stats, PlayingTetromino, NextTetromino
+      | Prepare the objects and surfaces the game will use
+      | 3 surfaces for 4 globals objects
+      | Surfaces : board_surface, stats_surface, tetromino_surface
+      | Objects : Board, Stats, PlayingTetromino, NextTetromino
     '''
     global Board, Stats
     Board = objects.Board(BOARD)
@@ -111,7 +111,7 @@ def init_play():
 
 def get_a_random_tetromino():
     '''
-        Return a new object tetromino, randomly chosen from the Tetrominos list
+      | Return a new object tetromino, randomly chosen from the Tetrominos list
     '''
     choice = randrange(0,len(Tetrominos))
     return Tetrominos[choice]
@@ -146,8 +146,8 @@ def game_drawing():
 
 def draw_screen():
     '''
-        Clear screen, draw the program 1 px border, then if Debug, draw a grid.
-        Draw the correct content according to game state
+      | Clear screen, draw the program 1 px border, then if Debug, draw a grid.
+      | Draw the correct content according to game state
     '''
     clear(screen)
     rectangle(screen, (0,0,WIDTH,HEIGHT),'silver', False)
@@ -198,8 +198,8 @@ def draw_confirm_box():
 
 def draw_arrow():
     '''
-        first check if arrow surface is defined, if not, init arrow
-        then load the correct shape and selection
+      | first check if arrow surface is defined, if not, init arrow
+      | then load the correct shape and selection
     '''
     try:
         arrow_surface
@@ -224,8 +224,8 @@ def draw_arrow():
 
 def draw_play():
     '''
-        Draw the playing game surface when flag update for each is up
-        Draw game board, game stats+next tetromino, game current tetromino
+      | Draw the playing game surface when flag update for each is up
+      | Draw game board, game stats+next tetromino, game current tetromino
     '''
     if Board.update_surface == True:
         position = BOARD['surface_position']
@@ -262,7 +262,7 @@ def get_arrow_shape():
 
 def get_arrow_selection():
     '''
-        get the content and return a dictionnary with position, color and target of the arrow
+      | get the content and return a dictionnary with position, color and target of the arrow
     '''
     selection = arrow_selection
     content = CONTENT[STATES[game_state]]['arrowselect'][selection]
@@ -284,14 +284,15 @@ def update_arrow_selection(direction):
 
 def move_arrow(key):
     '''
-        change position of the key
-        At game state Menu, arrows used to select an other game state
-        At game state New Game, arrows used to change settings  (name, speed)
-        keys :
-        0 : UP
-        1 : DOWN
-        2 : LEFT
-        3 : RIGHT
+      | change position of the key
+      | At game state Menu, arrows used to select an other game state
+      | At game state New Game, arrows used to change settings  (name, speed)
+      | keys :
+      | 0 : UP
+      | 1 : DOWN
+      | 2 : LEFT
+      | 3 : RIGHT
+      | 4 : JUMP DOWN
     '''
 
     if game_state == GSC['MENU']:
@@ -312,6 +313,9 @@ def move_arrow(key):
            update_arrow_selection(1)
 
 def goto_menu():
+    '''
+      | reset stats
+    '''
     global game_state, update_screen, update_arrow
     game_state = GSC['MENU']
     update_screen = True
