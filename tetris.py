@@ -12,13 +12,12 @@ from debug import *
 
 # START VARIABLES
 '''
-    The starting variable with GSC, give code of the first game state : TITLE
-    update_screen at True for the first drawing of screen surface
-    the others update are flags related to next game states and other surfaces, start false
-    new_game is a flag to init only once a new game
-    pause_game is a flag for the escape input and confirm box while playing
+  | GSC, give code of the first game state : TITLE
+  | update_screen at True for the first drawing of screen surface
+  | the others update are flags are game related and start False
+  | new_game is a once only flag to init a new game
+  | pause_game is a flag for the escape input and confirm box while playing
 '''
-
 game_state = GSC['TITLE']
 update_screen = True
 update_arrow = False
@@ -31,7 +30,12 @@ if DEBUG == True:
     new_game = debug_game()[1]
 
 # INIT PROCESS
-
+'''
+  | init_game is called once the program start and prepare the program with
+  | init_screen create the main program window
+  | init_font prepare the global font
+  | init_timer prepare the global clock used for timers
+'''
 def init_screen():
     global screen
     if DEBUG:
@@ -39,8 +43,7 @@ def init_screen():
     else:
         flags = pygame.FULLSCREEN|pygame.SCALED
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
-    title = "Tetris v3"
-    pygame.display.set_caption(title)
+    pygame.display.set_caption("Tetris")
 
 def init_font():
     global font
@@ -67,7 +70,6 @@ def init_arrow_surface():
     arrow_surface = pygame.Surface((8,8))
     arrow_selection = 0
 
-
 def init_board_surface():
     global board_surface
     board_surface = pygame.Surface(BOARD['surface_size'])
@@ -80,25 +82,32 @@ def init_tetromino_surface():
     global tetromino_surface
     tetromino_surface = pygame.Surface(TETROMINO['surface_size'])
 
+def init_tetrominos_objects():
+    '''
+        All differents tetrominos are initianilazed in a list
+        First playing Tetromino objects are randomly defined from the Tetrominos list
+    '''
+    global Tetrominos, PlayingTetromino, NextTetromino
+    Tetrominos = []
+    for shape in TETROMINOSHAPES:
+        Tetrominos.append(objects.Tetromino(shape, TETROMINOSHAPES[shape],DEBUG))
+    PlayingTetromino = get_a_random_tetromino()
+    NextTetromino = get_a_random_tetromino()
+
 def init_play():
     '''
         Prepare the objects and surfaces the game will use
         3 surfaces for 4 globals objects
         Surfaces : board_surface, stats_surface, tetromino_surface
         Objects : Board, Stats, PlayingTetromino, NextTetromino
-        Tetromino objects are randomly defined for the Tetrominos list
     '''
-    global Board, Stats, Tetrominos, PlayingTetromino, NextTetromino
+    global Board, Stats
     Board = objects.Board(BOARD)
-    init_board_surface()
     Stats = objects.Stats(STATS)
+    init_tetrominos_objects()
+    init_board_surface()
     init_statistics_surface()
     init_tetromino_surface()
-    Tetrominos = []
-    for shape in TETROMINOSHAPES:
-        Tetrominos.append(objects.Tetromino(shape, TETROMINOSHAPES[shape],DEBUG))
-    PlayingTetromino = get_a_random_tetromino()
-    NextTetromino = get_a_random_tetromino()
 
 def get_a_random_tetromino():
     '''
@@ -141,7 +150,7 @@ def draw_screen():
         Draw the correct content according to game state
     '''
     clear(screen)
-    rectangle(screen, (0,0,WIDTH,HEIGHT),'grey', False)
+    rectangle(screen, (0,0,WIDTH,HEIGHT),'silver', False)
 
     if DEBUG == True:
         debug_draw_grid(screen)
@@ -173,7 +182,7 @@ def draw_global_message():
     position = datas[0]
     text = datas[1]
     color = datas[2]
-    rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1))
+    rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1),'silver')
     write(font, screen, position, text, color)
 
 def draw_confirm_box():
@@ -328,7 +337,7 @@ def validation_key():
     '''
     global game_state, update_screen, update_arrow, pause_game, new_game
     if game_state == GSC['PLAY']:
-        print('space not a validation key, but a game input')
+        move_key(4)
     elif game_state == GSC['TITLE']:
         game_state = GSC['INTRO']
         update_screen = True
@@ -387,6 +396,7 @@ def move_key(key):
         move_arrow(key)
         update_arrow = True
     elif game_state == GSC['PLAY']:
+        print(key)
         #move_tetromino(key)
         #update_tetromino = True
         #maybe all this in the Tetromino object
@@ -400,7 +410,7 @@ def check_inputs():
         check player possible inputs
         * the exit window
         * the escape input
-        * the space input
+        * the space & return input
         * the 4 arrows input
         check game_state to return True or False to loop running
     '''
@@ -411,7 +421,7 @@ def check_inputs():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 escape_key()
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
                 validation_key()
             if event.key == pygame.K_UP:
                 move_key(0)
@@ -421,14 +431,17 @@ def check_inputs():
                 move_key(2)
             if event.key == pygame.K_RIGHT:
                 move_key(3)
-    return exit(game_state)
+    return check_exit(game_state)
 
 
 # CHECK UPDATES
 
 def check_play():
     '''
-        Where data change, is checked and flag (update_play) to draw the game is raised or not
+      | Where the game is playing data change
+      | new_game flag is checked before to initialize a new game 
+      | update_play is a flag telling to draw the game
+      | Check the tetromino & board after each tetromino movement or user input
     '''
     global new_game, update_play
 
@@ -446,13 +459,10 @@ def check_play():
 
 def game_loop():
     '''
-        At each loop
-        * Check events input
-        * Move the arrow for animation
-        * Move the tetromino and update time if game state is Playing
-        * Check the tetromino & board after each tetromino movement or user input
-        * Update screen display if asked
-        * Update surfaces display (arrows, tetromino, informations) if asked
+      | At each loop
+      | 1. Check events input and change datas if game is playing
+      | 2. Update timers if game is playing
+      | 3. Update screen & surfaces drawing if related flag raised True
     '''
     game_running = True
 

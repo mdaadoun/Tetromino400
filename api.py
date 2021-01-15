@@ -3,8 +3,6 @@ import pygame
 from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOSHAPES
 
 # HELPER FUNCTIONS
-'''
-'''
 
 def clear(surface, color='black'):
     '''
@@ -34,16 +32,21 @@ def rectangle(surface, rect, color='grey',fill=True):
         pygame.gfxdraw.rectangle(surface,rect,COLORS[color])
 
 def pixel(surface, position, color='grey'):
+    '''
+        draw a pixel at position x and y on the given surface
+    '''
     pygame.gfxdraw.pixel(surface,position[0],position[1],COLORS[color])
 
-def exit(game_state):
+def check_exit(game_state):
+    '''
+        check if the game state is exit, and return False to stop program loop
+    '''
     global update_screen
     if game_state == GSC['EXIT']:
         update_screen = False
         return False
     else:
         return True
-
 
 def quit():
     pygame.quit()

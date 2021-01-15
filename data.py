@@ -14,8 +14,8 @@ screensizes = {
 #: COLORS DATA - 4 + 20 colors
 colorslist = {
     'black':(0,0,0),
-    'silver':(128,128,128),
-    'grey':(192,192,192),
+    'grey':(128,128,128),
+    'silver':(192,192,192),
     'white':(255,255,255),
     'cyan':(0,255,255),
     'teal':(0,128,128),
