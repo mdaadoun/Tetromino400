@@ -302,31 +302,31 @@ shapes_T = [
 tetrominoshapes = {
     'I': {
         'shape': shapes_I,
-        'color': colorslist['cyan']
+        'color': 'cyan'
     },
     'J': {
         'shape': shapes_J,
-        'color': colorslist['blue']
+        'color': 'blue'
     },
     'L': {
         'shape': shapes_L,
-        'color': colorslist['orange']
+        'color': 'orange'
     },
     'O': {
         'shape': shapes_O,
-        'color': colorslist['yellow']
+        'color': 'yellow'
     },
     'Z': {
         'shape': shapes_Z,
-        'color': colorslist['red']
+        'color': 'red'
     },
     'S': {
         'shape': shapes_S,
-        'color': colorslist['lime']
+        'color': 'lime'
     },
     'T': {
         'shape': shapes_T,
-        'color': colorslist['magenta']
+        'color': 'magenta'
     }
 }
 '''
@@ -347,10 +347,10 @@ stats = {
     'size_next':(8*PX, 8*PX),
     'stats': (
         ('NEXT',(4*PX,0),None),
-        ('LINES',(2*PX,9*PX),'0'),
-        ('SCORE',(2*PX,13*PX),'0000'),
-        ('LEVEL',(2*PX,17*PX),'0'),
-        ('TIME',(2*PX,21*PX),'00:00:00')
+        ('LINES',(2*PX,10*PX),'0'),
+        ('SCORE',(2*PX,14*PX),'0000'),
+        ('LEVEL',(2*PX,18*PX),'0'),
+        ('TIME',(2*PX,22*PX),'00:00:00')
     )
 }
 

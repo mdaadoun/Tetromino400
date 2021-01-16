@@ -2,7 +2,7 @@ from api import *
 
 class Tetromino:
 
-    def __init__(self, name, data, debug=False):
+    def __init__(self, name, data, position, debug=False):
         '''
             get a random current rotation at object creation with max rotation
             volume_shape : pixel number in one shape
@@ -11,13 +11,14 @@ class Tetromino:
         self.color = data['color']
         self.shape = self.prepare_shape_data_as_one_tuple(data['shape'])
         self.max_rotations = len(data['shape'])
+        self.previous_rotation = 0
         self.current_rotation = 0
-        self.current_top_left_position = (0,0)
+        self.current_top_left_position = position
+        self.position = position
         self.bottom_check = 0
         self.right_check = 0
         self.volume_shape = 16
         self.update_surface = True
-        self.position = (0,0)
 
         if debug == True:
             self.debug_draw_all()
@@ -67,29 +68,45 @@ class Tetromino:
 
     def draw(self, surface, grid, debug=False):
         '''
-            draw the shape of the current rotation
+            draw the shape on the given surface with the current rotation
+            loop the self.shape built tupple using a cursor with self.start
         '''
+        self.start = self.current_rotation*self.volume_shape
+        x, y = self.position[0], self.position[1]
+        for pixel in range(self.volume_shape):
+            if self.shape[self.start+pixel] == 1:
+                rectangle(surface,(x*grid,y*grid,grid,grid),self.color)
+            x += 1
+            if pixel%4 == 3:
+                y += 1
+                x = self.position[0]
+        self.update_surface = False
+
         if debug == True:
             self.debug_draw()
 
-    def move(self, key):
+    def move(self, direction):
         '''
-            movement
-            play movement sound
+          | check if next position is possible
+          | if yes :
+          | * save previous position
+          | * uptade position
+          | * play movement sound
+          | * else play the blocked sound
         '''
-        pass
+        print(direction)
 
     def rotate(self, rotation):
         '''
-            rotation clockwise(cw) or anticlockwise(acw), get the correct
-            play rotating sound
+          | check if next rotation is possible
+          | if yes :
+          | * save previous rotation
+          | * get the next rotation
+          | * play rotating sound
+          | * else play the blocked sound
         '''
-        if rotation == 'cw':
-            self.current_rotation = (self.current_rotation + 1)%self.max_rotations
-        elif rotation == 'acw':
-            self.current_rotation = (self.current_rotation - 1)%self.max_rotations
-        else:
-            print('can only be clockwise(cw) or anticlockwise(acw).')
+        self.previous_rotation = self.current_rotation
+        self.current_rotation = (self.current_rotation + 1)%self.max_rotations
 
     def check_next_position(self, next_position):
         '''
@@ -110,6 +127,7 @@ class Board:
             Draw the Grid if debug is on
         '''
         self.draw_borders(surface, grid, color='grey')
+        self.update_surface = False
 
         if debug == True:
             self.draw_grid(surface,grid,'red')
@@ -131,20 +149,16 @@ class Stats:
         self.next_box = (data['position_next'],data['size_next'])
         self.stats = data['stats']
 
-    def draw(self, surface, grid, next_tetromino, font, debug=False):
+    def draw(self, surface, grid, font, debug=False):
         '''
             Draw the next tetromino box
-            Draw the next tetromino in the box
             Draw the stats titles
             Draw the stats data
             Draw the grid if debug is on
         '''
         self.draw_next_box(surface, grid, self.next_box)
-        self.draw_next_tetromino(surface, grid, next_tetromino)
         self.draw_stats(font, surface, grid, self.stats)
-
-        if debug == True:
-            self.debug_draw_grid(surface, grid, color='red')
+        self.update_surface = False
 
     def draw_next_box(self, surface, grid, box):
         x = box[0][0]
@@ -165,8 +179,7 @@ class Stats:
             if variable is not None:
                 write(font, surface, (x,y+grid), variable, 'white')
 
-    def draw_next_tetromino(self, surface, grid, tetromino):
-        print('next tetromino:', tetromino)
+class Arrow:
+    def __init__(self, data):
+        pass
 
-    def debug_draw_grid(self, surface, grid, color):
-        print('draw stats debug grid', surface, grid, color)
