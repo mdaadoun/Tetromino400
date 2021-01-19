@@ -10,6 +10,13 @@ def clear(surface, color='black'):
     '''
     surface.fill(COLORS[color])
 
+
+def blit(surface1, surface2, position):
+    '''
+       draw surface2 on surface1 at position
+    '''
+    surface1.blit(surface2, position)
+
 def write(font, surface, position, text, color='grey', size=GRID):
     '''
         write a text at position (x,y)

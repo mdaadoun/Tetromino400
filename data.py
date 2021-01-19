@@ -43,18 +43,20 @@ colorslist = {
 GSC = gamestatescodes = {
     'TITLE':0,
     'INTRO':1,
-    'MENU':2,
-    'SCORE':3,
-    'NEW':4,
-    'PLAY':5,
-    'CONFIRM':6,
-    'OVER':7,
-    'EXIT':8
+    'INPUTS':2,
+    'MENU':3,
+    'SCORE':4,
+    'NEW':5,
+    'PLAY':6,
+    'CONFIRM':7,
+    'OVER':8,
+    'EXIT':9
 }
 
 gamestates = [
     'TITLE',
     'INTRO',
+    'INPUTS',
     'MENU',
     'SCORE',
     'NEW',
@@ -67,13 +69,14 @@ gamestates = [
     STATES :
     | 0 : TITLE : Title screen
     | 1 : INTRO : Introduction screen
-    | 2 : MENU : Menu screen
-    | 3 : SCORE : Highscores screen
-    | 4 : NEW : New Game screen / Start Settings
-    | 5 : PLAY : Game Playing screen
-    | 6 : CONFIRM : Confirm end game
-    | 7 : OVER : Game Over screen
-    | 8 : EXIT : Flag to Exit the Game
+    | 2 : INPUTS : Introduction inputs
+    | 3 : MENU : Menu screen
+    | 4 : SCORE : Highscores screen
+    | 5 : NEW : New Game screen / Start Settings
+    | 6 : PLAY : Game Playing screen
+    | 7 : CONFIRM : Confirm end game
+    | 8 : OVER : Game Over screen
+    | 9 : EXIT : Flag to Exit the Game
 '''
 
 statecontent = {
@@ -104,6 +107,11 @@ statecontent = {
             [(4*PX,16*PX),"Jump 1 level, the speed increase !", 'cyan'],
             [(4*PX,20*PX),"Current best Score :", 'white'],
         ]
+    },
+    'INPUTS': {
+       'text':[
+            [(10*PX,1*PX),"HOW TO PLAY, KEYBOARD and GAMEPAD", 'yellow']
+       ]
     },
     'MENU': {
         'text':[
@@ -360,6 +368,10 @@ tetromino = {
     'surface_position':(9*PX, 2*PX)
 }
 
+arrow = {
+    'surface_size':(PX,PX)
+}
+
 WIDTH = screensizes['width']
 HEIGHT = screensizes['height']
 GRID = screensizes['grid']
@@ -371,6 +383,7 @@ CONTENT = statecontent
 COLORS = colorslist
 BOARD = board
 STATS = stats
+ARROW = arrow
 TETROMINO = tetromino
 TETROMINOSHAPES = tetrominoshapes
 '''

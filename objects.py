@@ -2,23 +2,25 @@ from api import *
 
 class Tetromino:
 
-    def __init__(self, name, data, position, debug=False):
+    def __init__(self, name, size, color, shape, position, debug=False):
         '''
             get a random current rotation at object creation with max rotation
             volume_shape : pixel number in one shape
         '''
+        self.surface_size = size
         self.name = name
-        self.color = data['color']
-        self.shape = self.prepare_shape_data_as_one_tuple(data['shape'])
-        self.max_rotations = len(data['shape'])
+        self.color = color
+        self.shape = self.prepare_shape_data_as_one_tuple(shape)
+        self.max_rotations = len(shape)
         self.previous_rotation = 0
         self.current_rotation = 0
         self.current_top_left_position = position
+        self.surface_position = position
         self.position = position
         self.bottom_check = 0
         self.right_check = 0
         self.volume_shape = 16
-        self.update_surface = True
+        self.update_surface = False
 
         if debug == True:
             self.debug_draw_all()
@@ -95,6 +97,7 @@ class Tetromino:
           | * else play the blocked sound
         '''
         print(direction)
+        self.update_surface = True
 
     def rotate(self, rotation):
         '''
@@ -107,6 +110,7 @@ class Tetromino:
         '''
         self.previous_rotation = self.current_rotation
         self.current_rotation = (self.current_rotation + 1)%self.max_rotations
+        self.update_surface = True
 
     def check_next_position(self, next_position):
         '''
@@ -116,9 +120,11 @@ class Tetromino:
 
 class Board:
     def __init__(self, data):
+        self.surface_size = data['surface_size']
+        self.surface_position = data['surface_position']
         self.width = data['surface_size'][0]
         self.height = data['surface_size'][1]
-        self.update_surface = True
+        self.update_surface = False
 
     def draw(self, surface, grid, color='grey', debug=False):
         '''
@@ -145,7 +151,9 @@ class Board:
 
 class Stats:
     def __init__(self, data):
-        self.update_surface = True
+        self.update_surface = False
+        self.surface_size = data['surface_size']
+        self.surface_position = data['surface_position']
         self.next_box = (data['position_next'],data['size_next'])
         self.stats = data['stats']
 
@@ -181,5 +189,75 @@ class Stats:
 
 class Arrow:
     def __init__(self, data):
-        pass
+        '''
+          | update surface flag
+        '''
+        self.update_surface = False
+        self.surface_size = data['surface_size']
+        self.selection = 0
+        self.shape = None
+        self.color = None
+        self.surface_previous_position = (0,0)
+        self.surface_position = (0,0)
+        self.index_max = 0
 
+    def draw(self, surface):
+        x = 0
+        y = 0
+        for i in self.shape:
+            for j in i:
+                if j == 1:
+                    pixel(surface, (x,y), self.color)
+                x += 1
+            y += 1
+            x = 0
+        self.update_surface = False
+
+    def update_selection(self, direction):
+        self.selection += direction
+        if self.selection < 0:
+            self.selection = self.index_max
+        elif self.selection > self.index_max:
+            self.selection = 0
+        self.surface_previous_position = self.surface_position
+
+    def move(self, position, state):
+        '''
+          | change position of the key
+          | At game state Menu, arrows used to select an other game state
+          | At game state New Game, arrows used to change settings  (name, speed)
+          | keys :
+          | 0 : UP
+          | 1 : DOWN
+          | 2 : LEFT
+          | 3 : RIGHT
+        '''
+        if game_state == GSC['MENU']:
+            if key == 0:
+                self.update_selection(-1)
+            elif key == 1:
+                self.update_selection(1)
+        elif game_state == GSC['NEW']:
+            if key == 0:
+                #change setting function
+                print("change setting")
+            elif key == 1:
+                #change setting function
+                print("change setting")
+            elif key == 2:
+                self.update_selection(-1)
+            elif key == 3:
+                self.update_selection(1)
+
+    def get_data(self, content):
+        '''
+          | get the arrow data from current selection
+          | position, color and target
+        '''
+        print(content)
+        self.index_max = len(content['arrowselect']) - 1
+        self.shape = content['arrowshape']
+        content = content['arrowselect'][self.selection]
+        self.position = content[0]
+        self.color = content[1]
+        self.target = content[2]
