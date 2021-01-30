@@ -195,10 +195,12 @@ class Arrow:
         self.update_surface = False
         self.surface_size = data['surface_size']
         self.selection = 0
+        self.target = 0
         self.shape = None
         self.color = None
-        self.surface_previous_position = (0,0)
-        self.surface_position = (0,0)
+        self.transparent_color = 'pink'
+        self.previous_position = (0,0)
+        self.position = (0,0)
         self.index_max = 0
 
     def draw(self, surface):
@@ -208,6 +210,8 @@ class Arrow:
             for j in i:
                 if j == 1:
                     pixel(surface, (x,y), self.color)
+                else:
+                    pixel(surface, (x,y), self.transparent_color)
                 x += 1
             y += 1
             x = 0
@@ -219,25 +223,25 @@ class Arrow:
             self.selection = self.index_max
         elif self.selection > self.index_max:
             self.selection = 0
-        self.surface_previous_position = self.surface_position
+        self.previous_position = self.position
 
-    def move(self, position, state):
+    def move(self, key, state):
         '''
           | change position of the key
-          | At game state Menu, arrows used to select an other game state
-          | At game state New Game, arrows used to change settings  (name, speed)
+          | At game state Menu (3), arrows used to select an other game state
+          | At game state New Game (4), arrows used to change settings  (name, speed)
           | keys :
           | 0 : UP
           | 1 : DOWN
           | 2 : LEFT
           | 3 : RIGHT
         '''
-        if game_state == GSC['MENU']:
+        if state == 3:
             if key == 0:
                 self.update_selection(-1)
             elif key == 1:
                 self.update_selection(1)
-        elif game_state == GSC['NEW']:
+        elif state == 5:
             if key == 0:
                 #change setting function
                 print("change setting")
@@ -254,10 +258,9 @@ class Arrow:
           | get the arrow data from current selection
           | position, color and target
         '''
-        print(content)
         self.index_max = len(content['arrowselect']) - 1
         self.shape = content['arrowshape']
-        content = content['arrowselect'][self.selection]
-        self.position = content[0]
-        self.color = content[1]
-        self.target = content[2]
+        options = content['arrowselect'][self.selection]
+        self.position = options[0]
+        self.color = options[1]
+        self.target = options[2]

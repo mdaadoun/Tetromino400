@@ -143,8 +143,8 @@ statecontent = {
             [(8*PX,18*PX),"_",'blue'],
             [(10*PX,18*PX),"_",'blue'],
             [(12*PX,18*PX),"_",'blue'],
-            [(26*PX,14*PX),"SPEED",'yellow'],
-            [(26*PX,18*PX),"_",'yellow']
+            [(20*PX,14*PX),"SPEED",'yellow'],
+            [(20*PX,18*PX),"_",'yellow']
         ],
         'arrowshape':[
             (0,0,0,0,1,0,0,0),
@@ -160,7 +160,7 @@ statecontent = {
             [(8*PX,19*PX),'blue', 'A'],
             [(10*PX,19*PX),'blue', 'A'],
             [(12*PX,19*PX),'blue', 'A'],
-            [(26*PX,19*PX),'yellow', 1]
+            [(20*PX,19*PX),'yellow', 1]
         ]
     },
     'SCORE': {

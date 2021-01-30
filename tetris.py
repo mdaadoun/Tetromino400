@@ -47,7 +47,8 @@ def init_screen():
     if DEBUG:
         flags = pygame.NOFRAME|pygame.SCALED
     else:
-        flags = pygame.FULLSCREEN|pygame.SCALED
+        flags = pygame.NOFRAME|pygame.SCALED
+        #flags = pygame.FULLSCREEN|pygame.SCALED
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     pygame.display.set_caption("Tetris")
 
@@ -115,7 +116,7 @@ def init_surfaces():
     board_surface = pygame.Surface(Board.surface_size)
     stats_surface = pygame.Surface(Stats.surface_size)
     tetromino_surface = pygame.Surface(TETROMINO['surface_size'])
-    arrow_surface.set_colorkey(COLORS['black'])
+    arrow_surface.set_colorkey(COLORS['pink'])
     tetromino_surface.set_colorkey(COLORS['black'])
 
 def get_a_random_tetromino(position=(0,0)):
@@ -215,10 +216,9 @@ def draw_objects():
     if Arrow.update_surface == True:
         print("update arrow surface")
         clear(arrow_surface)
-        blit(screen,arrow_surface,Arrow.surface_previous_position)
-        #update display previous position rectangle ??
+        blit(screen,arrow_surface,Arrow.previous_position)
         Arrow.draw(arrow_surface)
-        blit(screen,arrow_surface,Arrow.surface_position)
+        blit(screen,arrow_surface,Arrow.position)
         updated = True
     return updated
 
@@ -259,91 +259,6 @@ def draw_confirm_box():
         text = d[1]
         color = d[2]
         write(font, screen, position, text, color)
-
-# ------------------------- START CODE TO REMOVE
-
-# ARROW FUNCTIONS - TO MOVE TO ARROW OBJECT !
-
-def draw_arrow():
-    #to remove when Arrow.draw() is set
-    '''
-      | first check if arrow surface is defined, if not, init arrow
-      | then load the correct shape and selection
-    '''
-    shape = CONTENT[STATES[game_state]]['arrowshape']
-    color = get_arrow_selection()['color']
-
-    x = 0
-    y = 0
-    for i in shape:
-        for j in i:
-            if j == 1:
-                pixel(arrow_surface, (x,y), color)
-            x += 1
-        y += 1
-        x = 0
-
-    display_arrow_surface()
-
-def display_arrow_surface():
-    #to remove when Arrow.update_surface and Arrow.draw set
-    position = get_arrow_selection()['position']
-    screen.blit(arrow_surface, position)
-
-def get_arrow_selection():
-    #to remove when Arrow init set
-    '''
-      | get the content and return a dictionnary with position, color and target of the arrow
-    '''
-    selection = arrow_selection
-    content = CONTENT[STATES[game_state]]['arrowselect'][selection]
-    data = {
-        'position': content[0],
-        'color': content[1],
-        'target': content[2]
-    }
-    return data
-
-def update_arrow_selection(direction):
-    #to remove when object move and variable Arrow.selection set
-    global arrow_selection
-    index_max = len(CONTENT[STATES[game_state]]['arrowselect']) - 1
-    arrow_selection += direction
-    if arrow_selection < 0:
-        arrow_selection = index_max
-    elif arrow_selection > index_max:
-        arrow_selection = 0
-
-def move_arrow(key):
-    #to remove when function Arrow.move() set
-    '''
-      | change position of the key
-      | At game state Menu, arrows used to select an other game state
-      | At game state New Game, arrows used to change settings  (name, speed)
-      | keys :
-      | 0 : UP
-      | 1 : DOWN
-      | 2 : LEFT
-      | 3 : RIGHT
-    '''
-    if game_state == GSC['MENU']:
-        if key == 0:
-            update_arrow_selection(-1)
-        elif key == 1:
-            update_arrow_selection(1)
-    elif game_state == GSC['NEW']:
-        if key == 0:
-            #change setting function
-            print("change setting")
-        elif key == 1:
-            #change setting function
-            print("change setting")
-        elif key == 2:
-            update_arrow_selection(-1)
-        elif key == 3:
-            update_arrow_selection(1)
-
-#-------------------------- END CODE TO REMOVE
 
 #################
 #               #
@@ -395,13 +310,11 @@ def validation_key():
         pause_game = False
         new_game = True
     elif game_state == GSC['MENU']:
-        #game_state = Arrow.get_selection()
-        game_state = get_arrow_selection()['target']
+        game_state = Arrow.target
         if not game_state == GSC['EXIT']:
             update_screen = True
         if game_state == GSC['NEW']:
-            #Arrow.update_surface = True
-            update_arrow = True
+            reset_arrow()
 
 def escape_key():
     '''
@@ -442,7 +355,8 @@ def move_key(key):
     '''
     global update_arrow
     if game_state == GSC['MENU'] or game_state == GSC['NEW']:
-        Arrow.move(key)
+        Arrow.move(key, game_state)
+        reset_arrow()
     elif game_state == GSC['PLAY']:
         if key == 0:
             PlayingTetromino.rotate()

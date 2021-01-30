@@ -10,7 +10,7 @@ from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLO
 DEBUG = False
 DEBUG_GRID = True
 DEBUG_STATS = False
-DEBUG_PLAY = False
+DEBUG_PLAY = True
 
 def debug_draw_grid(screen):
     '''
@@ -46,6 +46,6 @@ def debug_game():
         Return the game data to start at play mode directly
     '''
     if DEBUG_PLAY:
-        return (GSC['PLAY'], True)
+        return (GSC['MENU'], True)
     else:
-        return (GSC['TITLE'], False)
+        return (GSC['PLAY'], False)
