@@ -365,7 +365,7 @@ stats = {
 #: Tetromino
 tetromino = {
     'surface_size':(4*PX, 4*PX),
-    'surface_position':(9*PX, 2*PX)
+    'surface_position':(1, 1)
 }
 
 arrow = {

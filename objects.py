@@ -21,9 +21,14 @@ class Tetromino:
         self.right_check = 0
         self.volume_shape = 16
         self.update_surface = False
+        self.speed = 1
+        self.timer_limit = 30
+        self.next_slide = 30
+        self.last_slide = 0
 
         if debug == True:
-            self.debug_draw_all()
+            pass
+            #self.debug_draw_all()
 
     def prepare_shape_data_as_one_tuple(self, data):
         '''
@@ -85,7 +90,23 @@ class Tetromino:
         self.update_surface = False
 
         if debug == True:
-            self.debug_draw()
+            pass
+            #self.debug_draw()
+
+    def slide(self, timer):
+        '''
+          | Use frames per seconds and speed to keep down
+          | when using move 1 is the key for down
+          | after a check return the nb of lines mades
+        '''
+        self.next_slide = self.next_slide - self.speed
+        if self.next_slide <= 0:
+            self.last_slide = timer
+            self.next_slide = self.timer_limit
+            self.move(1)
+
+        lines = 0 #retun the lines built
+        return lines
 
     def move(self, direction):
         '''
@@ -95,11 +116,16 @@ class Tetromino:
           | * uptade position
           | * play movement sound
           | * else play the blocked sound
+          | 0 : UP = ROTATE TETROMINO (cw=clockwise)
+          | 1 : DOWN = GO FASTER
+          | 2 : LEFT = GO LEFT
+          | 3 : RIGHT = GO RIGHT
+          | 4 : SPACE & RETURN = JUMP DOWN
         '''
         print(direction)
         self.update_surface = True
 
-    def rotate(self, rotation):
+    def rotate(self):
         '''
           | check if next rotation is possible
           | if yes :
@@ -108,6 +134,7 @@ class Tetromino:
           | * play rotating sound
           | * else play the blocked sound
         '''
+        print("rotation")
         self.previous_rotation = self.current_rotation
         self.current_rotation = (self.current_rotation + 1)%self.max_rotations
         self.update_surface = True
@@ -126,13 +153,13 @@ class Board:
         self.height = data['surface_size'][1]
         self.update_surface = False
 
-    def draw(self, surface, grid, color='grey', debug=False):
+    def draw(self, surface, grid, debug=False):
         '''
             Draw the Board borders
             Draw the Board content
             Draw the Grid if debug is on
         '''
-        self.draw_borders(surface, grid, color='grey')
+        self.draw_borders(surface, grid, 'grey')
         self.update_surface = False
 
         if debug == True:
@@ -153,6 +180,8 @@ class Stats:
     def __init__(self, data):
         self.update_surface = False
         self.surface_size = data['surface_size']
+        self.width = data['surface_size'][0]
+        self.height = data['surface_size'][1]
         self.surface_position = data['surface_position']
         self.next_box = (data['position_next'],data['size_next'])
         self.stats = data['stats']
@@ -167,6 +196,9 @@ class Stats:
         self.draw_next_box(surface, grid, self.next_box)
         self.draw_stats(font, surface, grid, self.stats)
         self.update_surface = False
+
+        if debug == True:
+            self.draw_grid(surface,grid,'red')
 
     def draw_next_box(self, surface, grid, box):
         x = box[0][0]
@@ -186,6 +218,18 @@ class Stats:
             variable = stat[2]
             if variable is not None:
                 write(font, surface, (x,y+grid), variable, 'white')
+
+    def draw_grid(self, surface, grid, color):
+        for x in range(0, self.width, grid):
+            for y in range(0, self.height, grid):
+                line(surface,(0,y), (self.width, y), color)
+                line(surface,(x,0), (x, self.height), color)
+
+    def update_time(self,timer):
+        pass
+
+    def update_score(self,lines):
+        pass
 
 class Arrow:
     def __init__(self, data):
