@@ -18,7 +18,6 @@ from debug import *
 '''
   | GSC, give code of the first game state : TITLE
   | update_screen at True for the first drawing of screen surface
-  | the others update are flags are game related and start False
   | new_game is a once only flag to init a new game
   | pause_game is a flag for the escape input and confirm box while playing
 '''
@@ -44,8 +43,8 @@ def init_screen():
     if DEBUG:
         flags = pygame.NOFRAME|pygame.SCALED
     else:
-        flags = pygame.NOFRAME|pygame.SCALED
-        #flags = pygame.FULLSCREEN|pygame.SCALED
+        #flags = pygame.NOFRAME|pygame.SCALED
+        flags = pygame.FULLSCREEN|pygame.SCALED
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     pygame.display.set_caption("Tetris")
 
@@ -68,11 +67,28 @@ def init_game():
       | init_timer prepare the global clock used for timers
     '''
     pygame.display.init()
+    init_gamepad()
     init_screen()
     init_objects()
     init_surfaces()
     init_font()
     init_timer()
+
+def init_gamepad():
+    global gamepad
+    gamepad = []
+    pygame.joystick.init()
+    gamepad_count = pygame.joystick.get_count()
+    for i in range(gamepad_count):
+        gp = pygame.joystick.Joystick(i)
+        gp.init()
+        gamepad.append(gp)
+    if (len(gamepad) == 0):
+        print("No gamepad found")
+    else:
+        for i, gp in enumerate(gamepad):
+            name = gp.get_name()
+            print(f"Gamepad {i+1} is named: {name}")
 
 def init_objects():
     '''
@@ -85,13 +101,14 @@ def init_objects():
     Board = objects.Board(BOARD)
     Stats = objects.Stats(STATS)
     init_tetrominos_objects()
+    get_a_random_tetromino()
 
 def init_tetrominos_objects():
     '''
       | All differents tetrominos are initianilazed in a list
       | First playing Tetromino objects are randomly defined from the Tetrominos list
     '''
-    global Tetrominos, Tetromino
+    global Tetrominos
     Tetrominos = []
     size = TETROMINO['surface_size']
     position = TETROMINO['surface_position']
@@ -99,7 +116,6 @@ def init_tetrominos_objects():
         color = TETROMINOSHAPES[name]['color']
         shape = TETROMINOSHAPES[name]['shape']
         Tetrominos.append(objects.Tetromino(name,size,color,shape,position,DEBUG))
-    Tetromino = get_a_random_tetromino()
     #NextTetromino = get_a_random_tetromino((4,2))
     #Need an other way to get next tetromino as a fixed shape in stats without object
 
@@ -108,7 +124,7 @@ def init_surfaces():
       | Prepare the surfaces the game will use
       | 4 Surfaces :
       | arrow_surface, board_surface, stats_surface, tetromino_surface
-      | set to arrow and tetromino surfaces the black color for transparency
+      | set to arrow and tetromino surfaces the pink color for transparency
     '''
     global arrow_surface, arrow_selection, board_surface,stats_surface, tetromino_surface
     arrow_surface = pygame.Surface(Arrow.surface_size)
@@ -116,7 +132,7 @@ def init_surfaces():
     stats_surface = pygame.Surface(Stats.surface_size)
     tetromino_surface = pygame.Surface(TETROMINO['surface_size'])
     arrow_surface.set_colorkey(COLORS['pink'])
-    tetromino_surface.set_colorkey(COLORS['black'])
+    tetromino_surface.set_colorkey(COLORS['pink'])
 
 def get_a_random_tetromino():
     '''
@@ -124,13 +140,15 @@ def get_a_random_tetromino():
       | randomly chosen from the Tetrominos list
       | with a random starting rotation
     '''
+    global Tetromino
     choice = randrange(0,len(Tetrominos))
-    tetromino = Tetrominos[choice]
-    rotation = randrange(0,tetromino.max_rotations)
-    tetromino.current_rotation = rotation
-    return tetromino
+    Tetromino = Tetrominos[choice]
+    rotation = randrange(0,Tetromino.max_rotations)
+    Tetromino.next_rotation = Tetromino.rotation = rotation
+    Tetromino.next_position = Tetromino.position = TETROMINO['surface_position']
 
 def init_new_game():
+    get_a_random_tetromino()
     Board.update_surface = True
     Tetromino.update_surface = True
     Stats.update_surface = True
@@ -207,12 +225,13 @@ def draw_objects():
         blit(screen, stats_surface, Stats.surface_position)
         updated = True
     if Tetromino.update_surface == True:
-        print("update tetromino surface")
+        Tetromino.draw(tetromino_surface, GRID, DEBUG, True)
+        blit(screen, tetromino_surface, Tetromino.position)
+        Tetromino.update()
         Tetromino.draw(tetromino_surface, GRID, DEBUG)
-        blit(screen, tetromino_surface, Tetromino.surface_position)
+        blit(screen, tetromino_surface, Tetromino.position)
         updated = True
     if Arrow.update_surface == True:
-        print("update arrow surface")
         clear(arrow_surface)
         blit(screen,arrow_surface,Arrow.previous_position)
         Arrow.draw(arrow_surface)
@@ -371,6 +390,8 @@ def check_inputs():
     '''
     global game_state
     for event in pygame.event.get():
+        if event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYAXISMOTION:
+            get_gamepad_input()
         if event.type == pygame.QUIT:
             game_state = GSC['EXIT']
         if event.type == pygame.KEYDOWN:
@@ -387,6 +408,25 @@ def check_inputs():
             if event.key == pygame.K_RIGHT:
                 move_key(3)
     return check_exit(game_state)
+
+def get_gamepad_input():
+    gp = gamepad[0]
+    ax_up_dn = gp.get_axis(1)
+    ax_lf_rg = gp.get_axis(0)
+    btnA = gp.get_button(0)
+    btnB = gp.get_button(1)
+    if ax_up_dn < 0:
+        move_key(0)
+    elif ax_up_dn > 0:
+        move_key(1)
+    elif ax_lf_rg > 0:
+        move_key(3)
+    elif ax_lf_rg < 0:
+        move_key(2)
+    if btnB == True:
+        validation_key()
+    if btnA == True:
+        escape_key()
 
 ################
 #              #

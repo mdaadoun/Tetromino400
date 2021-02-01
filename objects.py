@@ -10,12 +10,12 @@ class Tetromino:
         self.surface_size = size
         self.name = name
         self.color = color
-        self.shape = self.prepare_shape_data_as_one_tuple(shape)
+        self.alpha = 'pink'
+        self.shape = self.set_tuple(shape)
         self.max_rotations = len(shape)
-        self.previous_rotation = 0
-        self.current_rotation = 0
-        self.current_top_left_position = position
-        self.surface_position = position
+        self.next_rotation = 0
+        self.rotation = 0
+        self.next_position = position
         self.position = position
         self.bottom_check = 0
         self.right_check = 0
@@ -25,12 +25,13 @@ class Tetromino:
         self.timer_limit = 30
         self.next_slide = 30
         self.last_slide = 0
+        self.move_aside = False
 
         if debug == True:
             pass
             #self.debug_draw_all()
 
-    def prepare_shape_data_as_one_tuple(self, data):
+    def set_tuple(self, data):
         '''
             prepare a single tupple with the shape data and return it
         '''
@@ -45,7 +46,6 @@ class Tetromino:
                             shapelist.append(0)
                     except IndexError:
                         shapelist.append(0)
-
         shapetuple = tuple(shapelist)
         return shapetuple
 
@@ -66,27 +66,35 @@ class Tetromino:
     def debug_draw(self):
         print(self.name)
         print(self.color)
-        print('position : ' + str(self.current_rotation))
+        print('position : ' + str(self.rotation))
         self.start = self.current_rotation*self.volume_shape
         for pixel in range(self.volume_shape):
             print(self.shape[self.start+pixel], end='')
             if pixel%4 == 3:
                 print('')
 
-    def draw(self, surface, grid, debug=False):
+    def draw(self, surface, grid, debug=False, clear=False):
         '''
-            draw the shape on the given surface with the current rotation
-            loop the self.shape built tupple using a cursor with self.start
+            draw the shape on the given surface with the given rotation
+            loop the self.shape built tupple using an offset with self.start
+            if clear flag is True, draw the previous rotation for clearing
         '''
-        self.start = self.current_rotation*self.volume_shape
-        x, y = self.position[0], self.position[1]
+        if clear:
+            color='black'
+        else:
+            color = self.color
+
+        self.start = self.rotation*self.volume_shape
+        x, y = 0,0
         for pixel in range(self.volume_shape):
             if self.shape[self.start+pixel] == 1:
-                rectangle(surface,(x*grid,y*grid,grid,grid),self.color)
+                rectangle(surface,(x*grid,y*grid,grid,grid),color)
+            else:
+                rectangle(surface,(x*grid,y*grid,grid,grid),self.alpha)
             x += 1
             if pixel%4 == 3:
                 y += 1
-                x = self.position[0]
+                x = 0
         self.update_surface = False
 
         if debug == True:
@@ -116,13 +124,25 @@ class Tetromino:
           | * uptade position
           | * play movement sound
           | * else play the blocked sound
-          | 0 : UP = ROTATE TETROMINO (cw=clockwise)
           | 1 : DOWN = GO FASTER
           | 2 : LEFT = GO LEFT
           | 3 : RIGHT = GO RIGHT
           | 4 : SPACE & RETURN = JUMP DOWN
+          | * the flag move_aside is to give priority moving aside over going down
         '''
-        print(direction)
+        p = self.position
+        x,y = p[0],p[1]
+        grid = 8
+        if direction == 1 and not self.move_aside:
+            self.next_position = (x, y+grid)
+        if direction == 2:
+            self.move_aside = True
+            self.next_position = (x-grid, y)
+        if direction == 3:
+            self.move_aside = True
+            self.next_position = (x+grid, y)
+        if direction == 4 and not self.move_aside:
+            print("jump")
         self.update_surface = True
 
     def rotate(self):
@@ -134,12 +154,15 @@ class Tetromino:
           | * play rotating sound
           | * else play the blocked sound
         '''
-        print("rotation")
-        self.previous_rotation = self.current_rotation
-        self.current_rotation = (self.current_rotation + 1)%self.max_rotations
+        self.next_rotation = (self.rotation + 1)%self.max_rotations
         self.update_surface = True
 
-    def check_next_position(self, next_position):
+    def update(self):
+        self.rotation = self.next_rotation
+        self.position = self.next_position
+        self.move_aside = False
+
+    def check_next_position(self):
         '''
             return True if the Tetromino can move
         '''
@@ -243,13 +266,12 @@ class Arrow:
         self.shape = None
         self.color = None
         self.transparent_color = 'pink'
-        self.previous_position = (0,0)
-        self.position = (0,0)
+        self.previous_position = (1,1)
+        self.position = (1,1)
         self.index_max = 0
 
     def draw(self, surface):
-        x = 0
-        y = 0
+        x,y = 0,0
         for i in self.shape:
             for j in i:
                 if j == 1:
