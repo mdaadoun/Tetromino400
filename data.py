@@ -143,7 +143,7 @@ statecontent = {
             [(8*PX,18*PX),"_",'blue'],
             [(10*PX,18*PX),"_",'blue'],
             [(12*PX,18*PX),"_",'blue'],
-            [(20*PX,14*PX),"SPEED",'yellow'],
+            [(20*PX,14*PX),"LEVEL",'yellow'],
             [(20*PX,18*PX),"_",'yellow']
         ],
         'arrowshape':[
@@ -356,8 +356,9 @@ stats = {
     'stats': (
         ('NEXT',(4*PX,0),None),
         ('LINES',(2*PX,10*PX),'0'),
-        ('SCORE',(2*PX,14*PX),'0000'),
-        ('LEVEL',(2*PX,18*PX),'0'),
+        ('SCORE',(2*PX,13*PX),'0000'),
+        ('SPEED',(2*PX,16*PX),'0000'),
+        ('LEVEL',(2*PX,19*PX),'0'),
         ('TIME',(2*PX,22*PX),'00:00:00')
     )
 }

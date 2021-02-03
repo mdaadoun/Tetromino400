@@ -5,7 +5,6 @@ import pygame
 from pygame import freetype, gfxdraw
 
 from api import *
-
 import objects
 from debug import *
 
@@ -18,16 +17,15 @@ from debug import *
 '''
   | GSC, give code of the first game state : TITLE
   | update_screen at True for the first drawing of screen surface
-  | new_game is a once only flag to init a new game
   | pause_game is a flag for the escape input and confirm box while playing
 '''
-
 game_state = GSC['TITLE']
 update_screen = True
-new_game = False
 pause_game = False
 
+####DEBUG CODE####
 if DEBUG == True:
+    global new_game
     dg = debug_game()
     game_state = dg[0]
     new_game = dg[1]
@@ -40,11 +38,11 @@ if DEBUG == True:
 
 def init_screen():
     global screen
+    #flags = pygame.NOFRAME|pygame.SCALED
+    flags = pygame.FULLSCREEN|pygame.SCALED
+    ###DEBUG CODE###
     if DEBUG:
         flags = pygame.NOFRAME|pygame.SCALED
-    else:
-        #flags = pygame.NOFRAME|pygame.SCALED
-        flags = pygame.FULLSCREEN|pygame.SCALED
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     pygame.display.set_caption("Tetris")
 
@@ -75,6 +73,9 @@ def init_game():
     init_timer()
 
 def init_gamepad():
+    '''
+      | Check and init connected gamepad
+    '''
     global gamepad
     gamepad = []
     pygame.joystick.init()
@@ -84,16 +85,17 @@ def init_gamepad():
         gp.init()
         gamepad.append(gp)
     if (len(gamepad) == 0):
-        print("No gamepad found")
+        print("No Gamepad Connected")
     else:
         for i, gp in enumerate(gamepad):
             name = gp.get_name()
-            print(f"Gamepad {i+1} is named: {name}")
+            print(f"The gamepad {i+1} is named: {name}")
+        print(f"Only the first gamepad is used.")
 
 def init_objects():
     '''
       | Prepare the objects the game will use
-      | 5 Objects :
+      | 4 Objects :
       | Arrow, Board, Stats, Tetromino
     '''
     global Board, Stats, Arrow
@@ -179,6 +181,7 @@ def game_drawing():
     objects_updated = draw_objects()
     if screen_updated or objects_updated:
         pygame.display.update()
+        ####DEBUG CODE####
         if DEBUG:
             global updated_frames
             updated_frames +=1
@@ -225,9 +228,10 @@ def draw_objects():
         blit(screen, stats_surface, Stats.surface_position)
         updated = True
     if Tetromino.update_surface == True:
+        Stats.update_score(Tetromino.check_update(Board))
         Tetromino.draw(tetromino_surface, GRID, DEBUG, True)
         blit(screen, tetromino_surface, Tetromino.position)
-        Tetromino.update()
+        Tetromino.set_update()
         Tetromino.draw(tetromino_surface, GRID, DEBUG)
         blit(screen, tetromino_surface, Tetromino.position)
         updated = True
@@ -261,7 +265,7 @@ def draw_global_message():
     text = datas[1]
     color = datas[2]
     rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1),'silver')
-    write(font, screen, position, text, color)
+    write(font,screen,position,text,color)
 
 def draw_confirm_box():
     '''
@@ -269,13 +273,13 @@ def draw_confirm_box():
     '''
     datas = [CONTENT['CONFIRM']['confirm'], CONTENT['CONFIRM']['info'], CONTENT['CONFIRM']['continue']]
     box = CONTENT['CONFIRM']['box']
-    rectangle(screen, (box[0], box[1], box[2], box[3]), 'white')
-    rectangle(screen, (box[0], box[1], box[2], box[3]), 'red', False)
+    rectangle(screen,(box[0],box[1],box[2],box[3]),'white')
+    rectangle(screen,(box[0],box[1],box[2],box[3]),'red',False)
     for d in datas:
         position = d[0]
         text = d[1]
         color = d[2]
-        write(font, screen, position, text, color)
+        write(font,screen,position,text,color)
 
 #################
 #               #
@@ -307,7 +311,7 @@ def validation_key():
       | * OVER : Game Over screen
       | * EXIT : Flag to Exit the Game
     '''
-    global game_state, update_screen, pause_game, new_game
+    global game_state, update_screen, pause_game
     if game_state == GSC['PLAY']:
         move_key(4)
     elif game_state == GSC['TITLE']:
@@ -324,8 +328,7 @@ def validation_key():
     elif game_state == GSC['NEW']:
         game_state = GSC['PLAY']
         update_screen = True
-        pause_game = False
-        new_game = True
+        init_new_game()
     elif game_state == GSC['MENU']:
         game_state = Arrow.target
         if not game_state == GSC['EXIT']:
@@ -369,6 +372,7 @@ def move_key(key):
       | 2 : LEFT = GO LEFT
       | 3 : RIGHT = GO RIGHT
       | 4 : SPACE & RETURN = JUMP DOWN
+      | The Stats score is updated if a Tetromino return completed lines
     '''
     if game_state == GSC['MENU'] or game_state == GSC['NEW']:
         Arrow.move(key, game_state)
@@ -386,12 +390,11 @@ def check_inputs():
       | * the escape input
       | * the space & return input
       | * the 4 arrows input
+      | * the gamepad inputs
       | check game_state to return True or False to loop running
     '''
     global game_state
     for event in pygame.event.get():
-        if event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYAXISMOTION:
-            get_gamepad_input()
         if event.type == pygame.QUIT:
             game_state = GSC['EXIT']
         if event.type == pygame.KEYDOWN:
@@ -407,9 +410,14 @@ def check_inputs():
                 move_key(2)
             if event.key == pygame.K_RIGHT:
                 move_key(3)
+        if event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYAXISMOTION:
+            get_gamepad_input()
     return check_exit(game_state)
 
 def get_gamepad_input():
+    '''
+      | Check the used input of the gamepad
+    '''
     gp = gamepad[0]
     ax_up_dn = gp.get_axis(1)
     ax_lf_rg = gp.get_axis(0)
@@ -428,26 +436,6 @@ def get_gamepad_input():
     if btnA == True:
         escape_key()
 
-################
-#              #
-# GAME UPDATES #
-#              #
-################
-
-def update_play(timer):
-    '''
-      | Where the game is playing data change
-      | new_game flag is checked before to initialize a new game
-      | keep the tetromino moving down and update score
-      | keep game timer printing on stats surface
-    '''
-    global new_game
-    if new_game == True:
-        init_new_game()
-        new_game = False
-    Stats.update_score(Tetromino.slide(timer))
-    Stats.update_time(timer)
-
 #############
 #           #
 # GAME LOOP #
@@ -458,28 +446,35 @@ def game_loop():
     '''
       | At each loop
       | 1. Check events input and change datas if game is playing
-      | 2. Update timers if game is playing
+      | 2. Update timers if game is playing to keep tetromino moving and stats up
       | 3. Update screen & surfaces drawing if related flag raised True
+      | 4. Keep the FPS at 30 with clock
     '''
-    global start_ticks
-    game_running = True
     start_ticks = pygame.time.get_ticks()
+    game_running = True
+    ###DEBUG CODE###
     if DEBUG == True:
         global updated_frames, frames
-        frames = 0
         updated_frames = 0
+        frames = 0
     while game_running:
         game_running = check_inputs()
         if game_state == GSC['PLAY'] and pause_game == False:
             game_ticks = pygame.time.get_ticks()
-            update_play(game_ticks - start_ticks)
+            Tetromino.slide(game_ticks)
+            Stats.update_time(game_ticks - start_ticks)
         game_drawing()
+        clock.tick(30)
+        ####DEBUG CODE####
         if DEBUG == True:
+            global new_game
+            if new_game == True:
+                init_new_game()
+                new_game = False
             frames += 1
             debug_draw_grid(screen)
             debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames)
             pygame.display.update()
-        clock.tick(30)
     quit()
 
 if __name__ == "__main__":

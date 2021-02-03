@@ -1,7 +1,6 @@
 from api import *
 
 class Tetromino:
-
     def __init__(self, name, size, color, shape, position, debug=False):
         '''
             get a random current rotation at object creation with max rotation
@@ -17,15 +16,14 @@ class Tetromino:
         self.rotation = 0
         self.next_position = position
         self.position = position
-        self.bottom_check = 0
-        self.right_check = 0
         self.volume_shape = 16
         self.update_surface = False
         self.speed = 1
         self.timer_limit = 30
         self.next_slide = 30
-        self.last_slide = 0
         self.move_aside = False
+        self.update = False
+        self.done = False
 
         if debug == True:
             pass
@@ -83,7 +81,6 @@ class Tetromino:
             color='black'
         else:
             color = self.color
-
         self.start = self.rotation*self.volume_shape
         x, y = 0,0
         for pixel in range(self.volume_shape):
@@ -105,16 +102,12 @@ class Tetromino:
         '''
           | Use frames per seconds and speed to keep down
           | when using move 1 is the key for down
-          | after a check return the nb of lines mades
+          | after a check return the nb of lines with self.move or 0
         '''
         self.next_slide = self.next_slide - self.speed
         if self.next_slide <= 0:
-            self.last_slide = timer
             self.next_slide = self.timer_limit
-            self.move(1)
-
-        lines = 0 #retun the lines built
-        return lines
+            return self.move(1)
 
     def move(self, direction):
         '''
@@ -157,16 +150,89 @@ class Tetromino:
         self.next_rotation = (self.rotation + 1)%self.max_rotations
         self.update_surface = True
 
-    def update(self):
-        self.rotation = self.next_rotation
-        self.position = self.next_position
+    def set_update(self):
+        '''
+          | if the tetromino can move, update to next position and/or rotation
+          | if not, reset next datas to current datas
+        '''
+        if self.update == True:
+            self.rotation = self.next_rotation
+            self.position = self.next_position
+        else:
+            self.next_rotation = self.rotation
+            self.next_position = self.position
         self.move_aside = False
 
-    def check_next_position(self):
+    def check_update(self, Board):
         '''
-            return True if the Tetromino can move
+          | check if tetromino can move and rotate, raise flag if yes
+          | return nb of lines made (0 to 4) if the Tetromino can move
+          | return data to Board object to update if the position is the last
+          | self.update=True when tetromino can move aside or down
+          | self.update=False when tetromino can't move aside
+          | self.update=False and self.done=True
+          |     when the tetromino can't move down, tetromion data passed
+          |     to board for updating the pattern. Then get the next Tetromino.
         '''
-        pass
+        print("\n*****\n")
+        lt = Board.surface_position[0] #limit left
+        lr = Board.surface_position[0] + Board.width #limit right
+        bp = '00' #board pattern
+        side_collision = self.check_side_collision(lt, lr)
+        board_collision = self.check_board_collision(bp)
+        if board_collision == True:
+            self.update = False
+            self.done = True
+        elif side_collision == True:
+            self.update = False
+        else:
+            self.update = True
+        return 0
+
+    def get_side_limits(self):
+        '''
+          | Return left & right x coordinate of tetromino
+          | c : nb of column the Tetromino size got
+          | size : (c*8) : nb of column * nb of pixel by column
+          | left : value of x coordinate
+          | right : value of left coordinate + size of Tetromino
+        '''
+        c = 4
+        self.offset = self.rotation*self.volume_shape
+        check = True
+        while check == True:
+            for block in range(c-1,self.volume_shape,4):
+                if self.shape[self.offset+block] == 1:
+                    check = False
+            if check == True:
+                c -= 1
+                if c == 0:
+                    check = False
+        print(c)
+        size = c*8
+        left = self.next_position[0]
+        right = left + size
+        return (left,right)
+
+    def check_side_collision(self,lt,lr):
+        '''
+          | Check sides of the tetromino with board limits
+          | board limits : left (lt) & right (lr)
+          | ts : Tetromino size, to get collision limits
+          | xl : Check the x coordinate of the tetromino left side
+          | xr : Check the x coordinate of the tetromino right side
+          | c : Collision flag
+        '''
+        ts = self.get_side_limits()
+        xl, xr = ts[0], ts[1]
+        c = False
+        if xl == lt or xr == lr:
+            c = True
+        return c
+
+    def check_board_collision(self,board):
+        #print(board)
+        return False
 
 class Board:
     def __init__(self, data):
@@ -252,7 +318,8 @@ class Stats:
         pass
 
     def update_score(self,lines):
-        pass
+        if lines != 0:
+            print('lines:',lines)
 
 class Arrow:
     def __init__(self, data):
