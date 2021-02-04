@@ -77,21 +77,22 @@ class Tetromino:
             loop the self.shape built tupple using an offset with self.start
             if clear flag is True, draw the previous rotation for clearing
         '''
-        if clear:
-            color='black'
-        else:
-            color = self.color
-        self.start = self.rotation*self.volume_shape
-        x, y = 0,0
-        for pixel in range(self.volume_shape):
-            if self.shape[self.start+pixel] == 1:
-                rectangle(surface,(x*grid,y*grid,grid,grid),color)
+        if self.done is not True:
+            if clear:
+                color='black'
             else:
-                rectangle(surface,(x*grid,y*grid,grid,grid),self.alpha)
-            x += 1
-            if pixel%4 == 3:
-                y += 1
-                x = 0
+                color = self.color
+            self.start = self.rotation*self.volume_shape
+            x, y = 0,0
+            for pixel in range(self.volume_shape):
+                if self.shape[self.start+pixel] == 1:
+                    rectangle(surface,(x*grid,y*grid,grid,grid),color)
+                else:
+                    rectangle(surface,(x*grid,y*grid,grid,grid),self.alpha)
+                x += 1
+                if pixel%4 == 3:
+                    y += 1
+                    x = 0
         self.update_surface = False
 
         if debug == True:
@@ -104,10 +105,11 @@ class Tetromino:
           | when using move 1 is the key for down
           | after a check return the nb of lines with self.move or 0
         '''
-        self.next_slide = self.next_slide - self.speed
-        if self.next_slide <= 0:
-            self.next_slide = self.timer_limit
-            return self.move(1)
+        if self.done is not True:
+            self.next_slide = self.next_slide - self.speed
+            if self.next_slide <= 0:
+                self.next_slide = self.timer_limit
+                return self.move(1)
 
     def move(self, direction):
         '''
@@ -123,20 +125,21 @@ class Tetromino:
           | 4 : SPACE & RETURN = JUMP DOWN
           | * the flag move_aside is to give priority moving aside over going down
         '''
-        p = self.position
-        x,y = p[0],p[1]
-        grid = 8
-        if direction == 1 and not self.move_aside:
-            self.next_position = (x, y+grid)
-        if direction == 2:
-            self.move_aside = True
-            self.next_position = (x-grid, y)
-        if direction == 3:
-            self.move_aside = True
-            self.next_position = (x+grid, y)
-        if direction == 4 and not self.move_aside:
-            print("jump")
-        self.update_surface = True
+        if self.done is not True:
+            p = self.position
+            x,y = p[0],p[1]
+            grid = 8
+            if direction == 1 and not self.move_aside:
+                self.next_position = (x, y+grid)
+            if direction == 2:
+                self.move_aside = True
+                self.next_position = (x-grid, y)
+            if direction == 3:
+                self.move_aside = True
+                self.next_position = (x+grid, y)
+            if direction == 4 and not self.move_aside:
+                print("jump")
+            self.update_surface = True
 
     def rotate(self):
         '''
@@ -174,20 +177,18 @@ class Tetromino:
           |     when the tetromino can't move down, tetromion data passed
           |     to board for updating the pattern. Then get the next Tetromino.
         '''
-        print("\n*****\n")
         lt = Board.surface_position[0] #limit left
         lr = Board.surface_position[0] + Board.width #limit right
-        bp = '00' #board pattern
         side_collision = self.check_side_collision(lt, lr)
-        board_collision = self.check_board_collision(bp)
-        if board_collision == True:
+        board_collision = self.check_board_collision(Board)
+        if board_collision[0] == True:
             self.update = False
             self.done = True
         elif side_collision == True:
             self.update = False
         else:
             self.update = True
-        return 0
+        return board_collision[1]
 
     def get_side_limits(self):
         '''
@@ -208,7 +209,6 @@ class Tetromino:
                 c -= 1
                 if c == 0:
                     check = False
-        print(c)
         size = c*8
         left = self.next_position[0]
         right = left + size
@@ -226,20 +226,112 @@ class Tetromino:
         ts = self.get_side_limits()
         xl, xr = ts[0], ts[1]
         c = False
-        if xl == lt or xr == lr:
+        if xl <= lt or xr >= lr:
             c = True
         return c
 
-    def check_board_collision(self,board):
-        #print(board)
-        return False
+    def check_board_collision(self,Board):
+        '''
+          | First we gather all the datas needed to check
+          | We work with square grid of 8 pixel.
+          | For the pattern :
+          |   The pattern tupple, with 0 for empty square, 1 for occuped
+          |   The pattern size that we store as colums and lines (in squares not pixels)
+          |     The 1 added to lines is for representing the pattern floor
+          |   It's top/left coordinates that we store as px_start & py_start
+          |   The total of squares in the pattern (lines*columns)
+          | For the tetromino we want to test :
+          |   We store the correct shape using index in a variable shape
+          | With those data, we build one lists :
+          |   All the coordinates of the Tetromino occupied square
+          | First we check if there is no square out of the pattern bottom limit
+          | Then we compare those two lists with each other :
+          |   If there is an identical pair, there is collision, return True
+          |     The board get the coordinates of the Tetromino to update the pattern
+          |     The game get the next Tetromino
+          |   Else, we return False and keep going.
+        '''
+        collision = False
+        grid = 8
+        pattern = Board.pattern
+        size = Board.pattern_size
+        surface_position = Board.surface_position
+        position = Board.pattern_position
+        px_start = surface_position[0]+position[0]
+        py_start = surface_position[1]+position[1]
+        tx1_start = self.position[0]
+        ty1_start = self.position[1]
+        tx2_start = self.next_position[0]
+        ty2_start = self.next_position[1]
+        columns,lines = size[0],size[1]+1
+        squares = lines*columns
+        index1 = self.next_rotation*self.volume_shape
+        index2 = self.rotation*self.volume_shape
+        shape1 = self.shape[index1:index1+self.volume_shape]
+        shape2 = self.shape[index2:index2+self.volume_shape]
+        c = 0
+        x1,y1,x2,y2 = tx1_start,ty1_start,tx2_start,ty2_start
+        t1_coords = []
+        t2_coords = []
+        while c < len(shape1):
+            if shape1[c] == 1:
+                t1_coords.append((x1,y1))
+            if shape2[c] == 1:
+                t2_coords.append((x2,y2))
+            x1 += grid
+            x2 += grid
+            #print(shape[c],end="")
+            if (c+1)%4==0:
+                #print("")
+                x1 = tx1_start
+                x2 = tx2_start
+                y1 += grid
+                y2 += grid
+            c+=1
+        #print("\n")
+        #print(t1_coords)
+        #print(t2_coords)
+        #draw the pattern
+        #print("\n")
+        c = 0
+        x,y = px_start,py_start
+        new_pattern = []
+        while c < squares:
+            if ((x,y) in t2_coords) and pattern[c] == 1:
+                #print("x",end="")
+                collision = True
+            if (x,y) in t1_coords:
+                #print(1,end="")
+                new_pattern.append(1)
+            else:
+                new_pattern.append(pattern[c])
+                #print(pattern[c],end="")
+            x += grid
+            if (c+1)%columns==0:
+                #print("")
+                x = px_start
+                y += grid
+            c+=1
+        #print("\n")
+        #draw the pattern and tetrominos squares positions
+        #print(new_pattern)
+        #print("Tetromino next position:",self.next_position)
+        #print("pattern lines, columns, square, x, y")
+        #print(lines,columns, squares, px_start, py_start)
+        if collision == True:
+            return (True,tuple(new_pattern))
+        else:
+            return (False,None)
 
 class Board:
     def __init__(self, data):
         self.surface_size = data['surface_size']
         self.surface_position = data['surface_position']
+        self.pattern_position = data['pattern_position']
         self.width = data['surface_size'][0]
         self.height = data['surface_size'][1]
+        self.pattern_size = data['pattern_size']
+        self.pattern = self.set_pattern()
         self.update_surface = False
 
     def draw(self, surface, grid, debug=False):
@@ -249,6 +341,7 @@ class Board:
             Draw the Grid if debug is on
         '''
         self.draw_borders(surface, grid, 'grey')
+        self.draw_pattern(surface, grid, 'white')
         self.update_surface = False
 
         if debug == True:
@@ -259,11 +352,52 @@ class Board:
         rectangle(surface, (grid,self.height-grid,self.width-grid,grid),color)
         rectangle(surface, (self.width-grid,0,grid,self.height-grid),color)
 
+    def draw_pattern(self, surface, grid, color):
+        x_start = x = self.pattern_position[0]
+        y = self.pattern_position[1]
+        columns = self.pattern_size[0]
+        lines = self.pattern_size[1]
+        squares = lines*columns
+        s = 0
+        while s < squares:
+            if self.pattern[s] == 1:
+                rectangle(surface,(x,y,grid,grid),color)
+            x += grid
+            if (s+1) % columns == 0:
+                x = x_start
+                y += grid
+            s += 1
+
     def draw_grid(self, surface, grid, color):
         for x in range(0, self.width, grid):
             for y in range(0, self.height, grid):
                 line(surface,(0,y), (self.width, y), color)
                 line(surface,(x,0), (x, self.height), color)
+
+    def set_pattern(self):
+        '''
+          | Set an empty (0) pattern using the board size minus its borders
+          | Add the last line for the floor as occupied (1)
+          | Return a tuple from the list
+        '''
+        x = self.pattern_size[0]
+        y = self.pattern_size[1]
+        pattern = [0,]*(x*y)
+        pattern += ([1,]*x)
+        return tuple(pattern)
+
+    def update_pattern(self, new_pattern):
+        '''
+          | Check if there is lines complete
+          | Update Board pattern
+          | Raise flag for Board update
+        '''
+        lines = 0
+        if new_pattern is not None:
+            print("update the pattern and surface update")
+            self.pattern = new_pattern
+            self.update_surface = True
+        return lines
 
 class Stats:
     def __init__(self, data):

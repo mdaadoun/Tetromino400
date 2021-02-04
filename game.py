@@ -8,41 +8,51 @@ from api import *
 import objects
 from debug import *
 
-###################
-#                 #
-# START VARIABLES #
-#                 #
-###################
-
-'''
-  | GSC, give code of the first game state : TITLE
-  | update_screen at True for the first drawing of screen surface
-  | pause_game is a flag for the escape input and confirm box while playing
-'''
-game_state = GSC['TITLE']
-update_screen = True
-pause_game = False
-
-####DEBUG CODE####
-if DEBUG == True:
-    global new_game
-    dg = debug_game()
-    game_state = dg[0]
-    new_game = dg[1]
-
 ##################
 #                #
 # INIT PROCESSES #
 #                #
 ##################
 
+def init_game():
+    '''
+      | init_game is called once the program start and prepare the program with
+      | Check and init_gamepad as an extra input device if available
+      | init_screen create the main program window
+      | init_objects prepare the games objects
+      | init_surfaces prepare the others game surfaces
+      | init_font prepare the global font
+      | init_timer prepare the global clock used for timers
+      | set update_screen flag at True for the first drawing of screen surface
+      | set game_state flag with GSC to give code of the first game state : TITLE
+      | start the game loop
+    '''
+    global update_screen, game_state
+    pygame.display.init()
+    init_gamepad()
+    init_screen()
+    init_objects()
+    init_surfaces()
+    init_font()
+    init_timer()
+    update_screen = True
+    game_state = GSC['TITLE']
+    ####START DEBUG CODE####
+    if DEBUG == True:
+        dg = debug_game()
+        game_state = dg
+        init_new_game()
+    #####END DEBUG CODE#####
+    game_loop()
+
 def init_screen():
     global screen
-    #flags = pygame.NOFRAME|pygame.SCALED
     flags = pygame.FULLSCREEN|pygame.SCALED
-    ###DEBUG CODE###
+    #flags = pygame.NOFRAME|pygame.SCALED
+    ####START DEBUG CODE####
     if DEBUG:
-        flags = pygame.NOFRAME|pygame.SCALED
+        flags = pygame.SCALED
+    #####END DEBUG CODE#####
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     pygame.display.set_caption("Tetris")
 
@@ -55,27 +65,7 @@ def init_timer():
     global clock
     clock = pygame.time.Clock()
 
-def init_game():
-    '''
-      | init_game is called once the program start and prepare the program with
-      | init_screen create the main program window
-      | init_surfaces prepare the others game surfaces
-      | init_objects prepare the games objects
-      | init_font prepare the global font
-      | init_timer prepare the global clock used for timers
-    '''
-    pygame.display.init()
-    init_gamepad()
-    init_screen()
-    init_objects()
-    init_surfaces()
-    init_font()
-    init_timer()
-
 def init_gamepad():
-    '''
-      | Check and init connected gamepad
-    '''
     global gamepad
     gamepad = []
     pygame.joystick.init()
@@ -95,31 +85,31 @@ def init_gamepad():
 def init_objects():
     '''
       | Prepare the objects the game will use
-      | 4 Objects :
-      | Arrow, Board, Stats, Tetromino
+      | 3 Objects and a list of 7 Tetromino objects :
+      | Arrow, Board, Stats : main game objects
+      | tetrominos : list of Tetrominos objects
+      |     The Tetromino Class Variable refers alternatively
+      |     to one of the object of the tetrominos list
+      |     First playing Tetromino is randomly chosen from this list
     '''
     global Board, Stats, Arrow
     Arrow = objects.Arrow(ARROW)
     Board = objects.Board(BOARD)
     Stats = objects.Stats(STATS)
     init_tetrominos_objects()
-    get_a_random_tetromino()
 
 def init_tetrominos_objects():
     '''
-      | All differents tetrominos are initianilazed in a list
-      | First playing Tetromino objects are randomly defined from the Tetrominos list
+      | All differents tetrominos are initialized in the list
     '''
-    global Tetrominos
-    Tetrominos = []
+    global tetrominos
+    tetrominos = []
     size = TETROMINO['surface_size']
     position = TETROMINO['surface_position']
     for name in TETROMINOSHAPES:
         color = TETROMINOSHAPES[name]['color']
         shape = TETROMINOSHAPES[name]['shape']
-        Tetrominos.append(objects.Tetromino(name,size,color,shape,position,DEBUG))
-    #NextTetromino = get_a_random_tetromino((4,2))
-    #Need an other way to get next tetromino as a fixed shape in stats without object
+        tetrominos.append(objects.Tetromino(name,size,color,shape,position,DEBUG))
 
 def init_surfaces():
     '''
@@ -139,21 +129,28 @@ def init_surfaces():
 def get_a_random_tetromino():
     '''
       | Return a new object tetromino at given position
-      | randomly chosen from the Tetrominos list
+      | randomly chosen from the tetrominos list
       | with a random starting rotation
     '''
     global Tetromino
-    choice = randrange(0,len(Tetrominos))
-    Tetromino = Tetrominos[choice]
+    choice = randrange(0,len(tetrominos))
+    Tetromino = tetrominos[choice]
     rotation = randrange(0,Tetromino.max_rotations)
     Tetromino.next_rotation = Tetromino.rotation = rotation
     Tetromino.next_position = Tetromino.position = TETROMINO['surface_position']
 
 def init_new_game():
+    '''
+      | get a random tetromino from list to set Tetromino object
+      | set True all game object update_surface variable to draw them on the screen
+      | pause_game is a flag for the escape input and confirm box while playing
+    '''
+    global pause_game
     get_a_random_tetromino()
     Board.update_surface = True
     Tetromino.update_surface = True
     Stats.update_surface = True
+    pause_game = False
 
 def reset_arrow():
     Arrow.update_surface = True
@@ -181,10 +178,11 @@ def game_drawing():
     objects_updated = draw_objects()
     if screen_updated or objects_updated:
         pygame.display.update()
-        ####DEBUG CODE####
+        ####START DEBUG CODE####
         if DEBUG:
             global updated_frames
             updated_frames +=1
+        #####END DEBUG CODE#####
 
 def reset_screen():
     '''
@@ -212,29 +210,30 @@ def draw_screen():
 def draw_objects():
     '''
       | Draw the correct surface when flag of related object is up
-      | Draw game board, game stats+next tetromino, game current tetromino
+      | Is the Game State is a playing state :
+      |     Draw game board, game stats+next tetromino, game current tetromino
       | For Arrow object, clear the surface before drawing
     '''
     updated = False
-    if Board.update_surface == True:
-        print("update board surface")
-        Board.draw(board_surface, GRID, DEBUG)
-        blit(screen, board_surface, Board.surface_position)
-        updated = True
-    if Stats.update_surface == True:
-        print("update stats and next tetro surface")
-        Stats.draw(stats_surface, GRID, font, DEBUG)
-        #NextTetromino.draw(stats_surface, GRID, DEBUG)
-        blit(screen, stats_surface, Stats.surface_position)
-        updated = True
-    if Tetromino.update_surface == True:
-        Stats.update_score(Tetromino.check_update(Board))
-        Tetromino.draw(tetromino_surface, GRID, DEBUG, True)
-        blit(screen, tetromino_surface, Tetromino.position)
-        Tetromino.set_update()
-        Tetromino.draw(tetromino_surface, GRID, DEBUG)
-        blit(screen, tetromino_surface, Tetromino.position)
-        updated = True
+    if game_state == GSC['PLAY']:
+        if Board.update_surface == True:
+            print("update board surface")
+            Board.draw(board_surface, GRID, DEBUG)
+            blit(screen, board_surface, Board.surface_position)
+            updated = True
+        if Stats.update_surface == True:
+            print("update stats and next tetro surface")
+            Stats.draw(stats_surface, GRID, font, DEBUG)
+            blit(screen, stats_surface, Stats.surface_position)
+            updated = True
+        if Tetromino.update_surface == True:
+            Stats.update_score(Board.update_pattern(Tetromino.check_update(Board)))
+            Tetromino.draw(tetromino_surface, GRID, DEBUG, True)
+            blit(screen, tetromino_surface, Tetromino.position)
+            Tetromino.set_update()
+            Tetromino.draw(tetromino_surface, GRID, DEBUG)
+            blit(screen, tetromino_surface, Tetromino.position)
+            updated = True
     if Arrow.update_surface == True:
         clear(arrow_surface)
         blit(screen,arrow_surface,Arrow.previous_position)
@@ -299,8 +298,8 @@ def goto_menu():
 def validation_key():
     '''
       | Most game state, move to an other game state
-      | but in Menu state, select the arrow choice
-      | and in Play state, move tetromino directly down
+      | but in Menu state, move to the arrow selected choice
+      | and in Play state, is it a game input that move the Tetromino
       | STATES :
       | * TITLE : Title screen
       | * INTRO : Introduction screen
@@ -311,7 +310,7 @@ def validation_key():
       | * OVER : Game Over screen
       | * EXIT : Flag to Exit the Game
     '''
-    global game_state, update_screen, pause_game
+    global game_state, update_screen
     if game_state == GSC['PLAY']:
         move_key(4)
     elif game_state == GSC['TITLE']:
@@ -452,32 +451,37 @@ def game_loop():
     '''
     start_ticks = pygame.time.get_ticks()
     game_running = True
-    ###DEBUG CODE###
+    ####START DEBUG CODE####
     if DEBUG == True:
         global updated_frames, frames
         updated_frames = 0
         frames = 0
+    #####END DEBUG CODE#####
     while game_running:
         game_running = check_inputs()
         if game_state == GSC['PLAY'] and pause_game == False:
             game_ticks = pygame.time.get_ticks()
             Tetromino.slide(game_ticks)
+            if Tetromino.done:
+                print('done, next tetromino')
+                #get a new tetromino
             Stats.update_time(game_ticks - start_ticks)
         game_drawing()
         clock.tick(30)
-        ####DEBUG CODE####
+        ####START DEBUG CODE####
         if DEBUG == True:
-            global new_game
-            if new_game == True:
-                init_new_game()
-                new_game = False
             frames += 1
             debug_draw_grid(screen)
             debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames)
             pygame.display.update()
+        #####END DEBUG CODE#####
     quit()
 
+##############
+#            #
+# START GAME #
+#            #
+##############
+
 if __name__ == "__main__":
-    # INIT GAME & START LOOP
     init_game()
-    game_loop()

@@ -87,25 +87,26 @@ statecontent = {
     },
     'TITLE': {
         'text': [
-            [(16*PX,8*PX),"TETRIS", 'cyan'],
-            [(16*PX,10*PX),"TETRIS", 'blue'],
-            [(16*PX,12*PX),"TETRIS", 'orange'],
-            [(16*PX,14*PX),"TETRIS", 'yellow'],
-            [(16*PX,16*PX),"TETRIS", 'red'],
-            [(16*PX,18*PX),"TETRIS", 'lime'],
-            [(16*PX,20*PX),"TETRIS", 'magenta']
+            [(14*PX,8*PX),"PiTetromino", 'cyan'],
+            [(14*PX,10*PX),"PiTetromino", 'blue'],
+            [(14*PX,12*PX),"PiTetromino", 'orange'],
+            [(14*PX,14*PX),"PiTetromino", 'yellow'],
+            [(14*PX,16*PX),"PiTetromino", 'red'],
+            [(14*PX,18*PX),"PiTetromino", 'lime'],
+            [(14*PX,20*PX),"PiTetromino", 'magenta']
         ]
     },
     'INTRO': {
         'text':[
-            [(10*PX,1*PX),"GET THE BEST SCORE!", 'yellow'],
-            [(4*PX,4*PX),"1 line  :  10 score  & 10 speed", 'white'],
-            [(4*PX,6*PX),"2 lines :  25 score  &  5 speed", 'white'],
-            [(4*PX,8*PX),"3 lines :  50 score  &  2 speed", 'white'],
-            [(4*PX,10*PX),"4 lines : 100 score  &  1 speed", 'white'],
-            [(2*PX,14*PX),"Every 100 speed point :", 'cyan'],
-            [(4*PX,16*PX),"Jump 1 level, the speed increase !", 'cyan'],
-            [(4*PX,20*PX),"Current best Score :", 'white'],
+            [(4*PX,2*PX),"WIN POINTS, GET THE BEST SCORE!", 'yellow'],
+            [(2*PX,5*PX),"1 line  =  1xlvl pts  & 10 speed pts", 'white'],
+            [(2*PX,7*PX),"2 lines =  2xlvl pts  &  5 speed pts", 'white'],
+            [(2*PX,9*PX),"3 lines =  3xlvl pts  &  2 speed pts", 'white'],
+            [(2*PX,11*PX),"4 lines =  4xlvl pts  &  1 speed pts", 'white'],
+            [(2*PX,15*PX),"Every 100 speed points :", 'cyan'],
+            [(3*PX,17*PX),"Jump 1 level, the speed increase !", 'cyan'],
+            [(19*PX,19*PX),"There is 10 levels.", 'cyan'],
+            [(2*PX,23*PX),"Current best Score :", 'white'],
         ]
     },
     'INPUTS': {
@@ -344,7 +345,9 @@ tetrominoshapes = {
 #: Board size and position
 board = {
     'surface_size':(12*PX, 21*PX),
-    'surface_position':(5*PX,6*PX)
+    'surface_position':(5*PX,6*PX),
+    'pattern_position':(1*PX,0),
+    'pattern_size':(10,20)
 }
 
 #: Stats & Next Tetromino Box sizes and positions + Stats titles positions and content
