@@ -105,8 +105,9 @@ statecontent = {
             [(2*PX,11*PX),"4 lines =  4xlvl pts  &  1 speed pts", 'white'],
             [(2*PX,15*PX),"Every 100 speed points :", 'cyan'],
             [(3*PX,17*PX),"Jump 1 level, the speed increase !", 'cyan'],
-            [(19*PX,19*PX),"There is 10 levels.", 'cyan'],
-            [(2*PX,23*PX),"Current best Score :", 'white'],
+            [(8*PX,19*PX),"There is 9 speed levels.", 'cyan'],
+            [(14*PX,21*PX),"Playtime max is 1 hour.", 'cyan'],
+            [(2*PX,24*PX),"Current best Score :", 'white'],
         ]
     },
     'INPUTS': {
@@ -140,6 +141,7 @@ statecontent = {
     },
     'NEW': {
         'text':[
+            [(8*PX,8*PX),"Get Ready for a New Game !", 'white'],
             [(8*PX,14*PX),"NAME",'blue'],
             [(8*PX,18*PX),"_",'blue'],
             [(10*PX,18*PX),"_",'blue'],
@@ -158,10 +160,10 @@ statecontent = {
             (0,0,0,1,1,1,0,0)
         ],
         'arrowselect':[
-            [(8*PX,19*PX),'blue', 'A'],
-            [(10*PX,19*PX),'blue', 'A'],
-            [(12*PX,19*PX),'blue', 'A'],
-            [(20*PX,19*PX),'yellow', 1]
+            [(8*PX,19*PX),'blue',None],
+            [(10*PX,19*PX),'blue',None],
+            [(12*PX,19*PX),'blue',None],
+            [(20*PX,19*PX),'yellow',None]
         ]
     },
     'SCORE': {
@@ -174,6 +176,12 @@ statecontent = {
         'info': [(7*PX,14*PX),"The score will be saved.", 'grey'],
         'continue': [(7*PX,16*PX),"Press space to leave.", 'black'],
         'box': (4*GRID, 10*GRID, 32*GRID, 9*GRID)
+    },
+    'OVER': {
+        'confirm': [(14*PX,12*PX),"GAME OVER !", 'red'],
+        'info': [(4*PX,14*PX),"The score is saved.", 'grey'],
+        'continue': [(4*PX,16*PX),"Press space to replay or escape.", 'black'],
+        'box': (2*GRID, 10*GRID, 36*GRID, 9*GRID)
     }
 }
 '''
@@ -273,13 +281,13 @@ shapes_Z = [
 #: S TETROMINO SHAPES
 shapes_S = [
     [
-        (0,1,0),
+        (1,0,0),
         (1,1,0),
-        (1,0,0)
+        (0,1,0)
     ],
     [
-        (1,1,0),
         (0,1,1),
+        (1,1,0),
         (0,0,0)
     ]
 ]
@@ -357,12 +365,12 @@ stats = {
     'position_next':(2*PX,0*PX),
     'size_next':(8*PX, 8*PX),
     'stats': (
-        ('NEXT',(4*PX,0),None),
-        ('LINES',(2*PX,10*PX),'0'),
-        ('SCORE',(2*PX,13*PX),'0000'),
-        ('SPEED',(2*PX,16*PX),'0000'),
-        ('LEVEL',(2*PX,19*PX),'0'),
-        ('TIME',(2*PX,22*PX),'00:00:00')
+        ('NEXT',(4*PX,0)),
+        ('LINES',(2*PX,10*PX)),
+        ('SCORE',(2*PX,13*PX)),
+        ('SPEED',(2*PX,16*PX)),
+        ('LEVEL',(2*PX,19*PX)),
+        ('TIME',(2*PX,22*PX))
     )
 }
 
@@ -373,7 +381,12 @@ tetromino = {
 }
 
 arrow = {
-    'surface_size':(PX,PX)
+    'surface_size':(PX,PX),
+    'player_name':['A','A','A'],
+    'settings_position':(8*PX, 17*PX),
+    'level':1,
+    'alpha_color':'pink',
+    'start_position':(1,1)
 }
 
 WIDTH = screensizes['width']

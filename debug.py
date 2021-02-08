@@ -8,7 +8,7 @@ from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLO
 '''
 
 DEBUG = False
-DEBUG_GRID = True
+DEBUG_GRID = False
 DEBUG_STATS = False
 DEBUG_PLAY = True
 

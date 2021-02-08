@@ -54,7 +54,7 @@ def init_screen():
         flags = pygame.SCALED
     #####END DEBUG CODE#####
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
-    pygame.display.set_caption("Tetris")
+    pygame.display.set_caption("PiTetromino")
 
 def init_font():
     global font
@@ -118,7 +118,7 @@ def init_surfaces():
       | arrow_surface, board_surface, stats_surface, tetromino_surface
       | set to arrow and tetromino surfaces the pink color for transparency
     '''
-    global arrow_surface, arrow_selection, board_surface,stats_surface, tetromino_surface
+    global arrow_surface,board_surface,stats_surface,tetromino_surface
     arrow_surface = pygame.Surface(Arrow.surface_size)
     board_surface = pygame.Surface(Board.surface_size)
     stats_surface = pygame.Surface(Stats.surface_size)
@@ -126,15 +126,26 @@ def init_surfaces():
     arrow_surface.set_colorkey(COLORS['pink'])
     tetromino_surface.set_colorkey(COLORS['pink'])
 
-def get_a_random_tetromino():
+def get_next_random_tetromino():
     '''
       | Return a new object tetromino at given position
       | randomly chosen from the tetrominos list
       | with a random starting rotation
+      | set Tetromino.done flag as False, to start updating
     '''
     global Tetromino
     choice = randrange(0,len(tetrominos))
-    Tetromino = tetrominos[choice]
+    try:
+        Tetromino.done = False
+        Tetromino = tetrominos[Tetromino.Next]
+        Tetromino.Next = choice
+    except NameError:
+        Tetromino = tetrominos[choice]
+        next_choice = randrange(0,len(tetrominos))
+        Tetromino.Next = next_choice
+    Stats.next_shape = tetrominos[Tetromino.Next].shape
+    Stats.next_color = tetrominos[Tetromino.Next].color
+    Stats.update_surface = True
     rotation = randrange(0,Tetromino.max_rotations)
     Tetromino.next_rotation = Tetromino.rotation = rotation
     Tetromino.next_position = Tetromino.position = TETROMINO['surface_position']
@@ -143,17 +154,17 @@ def init_new_game():
     '''
       | get a random tetromino from list to set Tetromino object
       | set True all game object update_surface variable to draw them on the screen
-      | pause_game is a flag for the escape input and confirm box while playing
+      | game over is a flag for end game
     '''
-    global pause_game
-    get_a_random_tetromino()
+    get_next_random_tetromino()
     Board.update_surface = True
+    Board.pattern = Board.set_pattern()
     Tetromino.update_surface = True
     Stats.update_surface = True
-    pause_game = False
 
 def reset_arrow():
     Arrow.update_surface = True
+    Arrow.update_settings = True
     Arrow.get_data(CONTENT[STATES[game_state]])
 
 #####################
@@ -200,7 +211,7 @@ def draw_screen():
     '''
     if game_state == GSC['PLAY']:
         reset_screen()
-    elif game_state == GSC['CONFIRM']:
+    elif game_state == GSC['CONFIRM'] or game_state == GSC['OVER']:
         draw_confirm_box()
     else:
         reset_screen()
@@ -222,7 +233,7 @@ def draw_objects():
             blit(screen, board_surface, Board.surface_position)
             updated = True
         if Stats.update_surface == True:
-            print("update stats and next tetro surface")
+            print("update stats")
             Stats.draw(stats_surface, GRID, font, DEBUG)
             blit(screen, stats_surface, Stats.surface_position)
             updated = True
@@ -239,6 +250,9 @@ def draw_objects():
         blit(screen,arrow_surface,Arrow.previous_position)
         Arrow.draw(arrow_surface)
         blit(screen,arrow_surface,Arrow.position)
+        updated = True
+    if Arrow.update_settings == True and game_state == GSC['NEW']:
+        Arrow.draw_settings(screen, GRID, font)
         updated = True
     return updated
 
@@ -270,8 +284,9 @@ def draw_confirm_box():
     '''
       | Draw a centered box with a message
     '''
-    datas = [CONTENT['CONFIRM']['confirm'], CONTENT['CONFIRM']['info'], CONTENT['CONFIRM']['continue']]
-    box = CONTENT['CONFIRM']['box']
+    state = STATES[game_state]
+    datas = [CONTENT[state]['confirm'], CONTENT[state]['info'], CONTENT[state]['continue']]
+    box = CONTENT[state]['box']
     rectangle(screen,(box[0],box[1],box[2],box[3]),'white')
     rectangle(screen,(box[0],box[1],box[2],box[3]),'red',False)
     for d in datas:
@@ -285,6 +300,12 @@ def draw_confirm_box():
 # INPUT CONTROL #
 #               #
 #################
+
+def game_over():
+    global game_state, update_screen
+    game_state = GSC['OVER']
+    Tetromino.game_over = False
+    update_screen = True
 
 def goto_menu():
     '''
@@ -321,7 +342,8 @@ def validation_key():
     elif game_state == GSC['SCORE']:
         goto_menu()
     elif game_state == GSC['OVER']:
-        goto_menu()
+        game_state = GSC['NEW']
+        update_screen = True
     elif game_state == GSC['CONFIRM']:
         goto_menu()
     elif game_state == GSC['NEW']:
@@ -332,8 +354,8 @@ def validation_key():
         game_state = Arrow.target
         if not game_state == GSC['EXIT']:
             update_screen = True
-        if game_state == GSC['NEW']:
-            reset_arrow()
+    if game_state == GSC['NEW']:
+        reset_arrow()
 
 def escape_key():
     '''
@@ -343,20 +365,16 @@ def escape_key():
       | in MENU state leave the game
       | if DEBUG, leave program immediatly
     '''
-    global game_state, update_screen, pause_game
-    if DEBUG:
-        game_state = GSC['EXIT']
-    elif game_state == GSC['PLAY']:
+    global game_state, update_screen
+    if game_state == GSC['PLAY']:
         game_state = GSC['CONFIRM']
         update_screen = True
-        pause_game = True
     elif game_state == GSC['CONFIRM']:
         game_state = GSC['PLAY']
         Stats.update_surface = True
         Tetromino.update_surface = True
         Board.update_surface = True
         update_screen = True
-        pause_game = False
     elif game_state == GSC['MENU']:
         game_state = GSC['EXIT']
     else:
@@ -459,15 +477,17 @@ def game_loop():
     #####END DEBUG CODE#####
     while game_running:
         game_running = check_inputs()
-        if game_state == GSC['PLAY'] and pause_game == False:
-            game_ticks = pygame.time.get_ticks()
-            Tetromino.slide(game_ticks)
-            if Tetromino.done:
-                print('done, next tetromino')
-                #get a new tetromino
-            Stats.update_time(game_ticks - start_ticks)
+        if game_state == GSC['PLAY']:
+            if Tetromino.game_over == True:
+                game_over()
+            elif Tetromino.done:
+                get_next_random_tetromino()
+            else:
+                game_ticks = pygame.time.get_ticks()
+                Tetromino.slide(game_ticks)
+                Stats.update_time(game_ticks - start_ticks)
         game_drawing()
-        clock.tick(30)
+        clock.tick(60)
         ####START DEBUG CODE####
         if DEBUG == True:
             frames += 1
