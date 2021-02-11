@@ -464,6 +464,9 @@ class Stats:
         self.level = 1
         self.lines = 0
         self.time = 0
+        self.name_position = data['name_position']
+        self.suffix = data['name_suffix']
+        self.name = 'AAA'
 
     def draw(self, surface, grid, font, debug=False):
         '''

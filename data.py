@@ -1,4 +1,3 @@
-
 #: 1 GRID PIXEL (PX) = SIZE GRID = 8 pixel
 PX = GRID = 8
 
@@ -118,7 +117,7 @@ statecontent = {
     'MENU': {
         'text':[
             [(12*PX,10*PX),"Start a New Game",'lime'],
-            [(12*PX,12*PX),"View Introduction",'white'],
+            [(12*PX,12*PX),"View Instructions",'white'],
             [(12*PX,14*PX),"View Highscores",'white'],
             [(12*PX,16*PX),"Exit Game",'red']
         ],
@@ -364,6 +363,8 @@ stats = {
     'surface_position':(23*PX,3*PX),
     'position_next':(2*PX,0*PX),
     'size_next':(8*PX, 8*PX),
+    'name_position':(6*PX, 3*PX),
+    'name_suffix':' PLAY !',
     'stats': (
         ('NEXT',(4*PX,0)),
         ('LINES',(2*PX,10*PX)),
@@ -377,7 +378,7 @@ stats = {
 #: Tetromino
 tetromino = {
     'surface_size':(4*PX, 4*PX),
-    'surface_position':(10*PX, 2*PX)
+    'surface_position':(10*PX, 4*PX)
 }
 
 arrow = {

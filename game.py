@@ -1,3 +1,5 @@
+import os
+
 from random import randrange
 from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS, ARROW
 
@@ -57,9 +59,15 @@ def init_screen():
     pygame.display.set_caption("PiTetromino")
 
 def init_font():
+    '''
+      | Init the freetype pygame module
+      | Retrieve the real path of the current script from __file__
+      | Load the font at the same path
+    '''
     global font
     freetype.init()
-    font = freetype.Font("prstartk.ttf")
+    path = os.path.dirname(os.path.realpath(__file__))
+    font = freetype.Font(f"{path}/prstartk.ttf")
 
 def init_timer():
     global clock
@@ -149,6 +157,11 @@ def get_next_random_tetromino():
     rotation = randrange(0,Tetromino.max_rotations)
     Tetromino.next_rotation = Tetromino.rotation = rotation
     Tetromino.next_position = Tetromino.position = TETROMINO['surface_position']
+    Tetromino.speed = Stats.level * 1.2
+
+def get_settings():
+    Stats.level = Arrow.level
+    Stats.name = "".join(Arrow.name) + Stats.suffix
 
 def init_new_game():
     '''
@@ -156,6 +169,7 @@ def init_new_game():
       | set True all game object update_surface variable to draw them on the screen
       | game over is a flag for end game
     '''
+    get_settings()
     get_next_random_tetromino()
     Board.update_surface = True
     Board.pattern = Board.set_pattern()
@@ -211,6 +225,7 @@ def draw_screen():
     '''
     if game_state == GSC['PLAY']:
         reset_screen()
+        write(font,screen,Stats.name_position,Stats.name,'white')
     elif game_state == GSC['CONFIRM'] or game_state == GSC['OVER']:
         draw_confirm_box()
     else:
@@ -228,12 +243,10 @@ def draw_objects():
     updated = False
     if game_state == GSC['PLAY']:
         if Board.update_surface == True:
-            print("update board surface")
             Board.draw(board_surface, GRID, DEBUG)
             blit(screen, board_surface, Board.surface_position)
             updated = True
         if Stats.update_surface == True:
-            print("update stats")
             Stats.draw(stats_surface, GRID, font, DEBUG)
             blit(screen, stats_surface, Stats.surface_position)
             updated = True
