@@ -7,7 +7,7 @@ from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLO
     debug_draw_grid : display a 8x8 grid on all the screen surface
 '''
 
-DEBUG =True
+DEBUG = True 
 DEBUG_GRID = False
 DEBUG_STATS = False
 DEBUG_PLAY = True

@@ -1,6 +1,7 @@
 import sys
+import csv
 import pygame
-from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOSHAPES
+from data import GRID, GSC, COLORS
 
 # HELPER FUNCTIONS
 
@@ -58,3 +59,30 @@ def check_exit(game_state):
 def quit():
     pygame.quit()
     sys.exit()
+
+def read_csv(file_name):
+    print(file_name)
+    with open(file_name) as save_file:
+        save_reader = csv.reader(save_file, delimiter=',')
+        line_count = 0
+        for row in save_reader:
+            if line_count == 0:
+                print(f'Column names are {", ".join(row)}')
+            else:
+                print(row)
+                print(f'\t{row[0]} as a score of {row[1]}')
+            line_count += 1
+    print(f'Processed {line_count} lines.')
+
+def write_csv(file_name, data):
+    print(file_name, data)
+    with open(file_name, mode='a') as save_file:
+        save_writer = csv.writer(save_file, delimiter=',')
+        save_writer.writerow([data,data,data,data,data])
+    print(f'The score {data} as been saved.')
+
+def get_dict_from_csv():
+    pass
+
+def send_dict_to_csv():
+    pass

@@ -1,5 +1,7 @@
 #: 1 GRID PIXEL (PX) = SIZE GRID = 8 pixel
 PX = GRID = 8
+NAME = 'Tetromino400'
+SAVE_FILE = 'save.csv'
 
 #: SCREEN SIZE
 screensizes = {
@@ -86,13 +88,13 @@ statecontent = {
     },
     'TITLE': {
         'text': [
-            [(14*PX,8*PX),"PiTetromino", 'cyan'],
-            [(14*PX,10*PX),"PiTetromino", 'blue'],
-            [(14*PX,12*PX),"PiTetromino", 'orange'],
-            [(14*PX,14*PX),"PiTetromino", 'yellow'],
-            [(14*PX,16*PX),"PiTetromino", 'red'],
-            [(14*PX,18*PX),"PiTetromino", 'lime'],
-            [(14*PX,20*PX),"PiTetromino", 'magenta']
+            [(14*PX,8*PX),"Tetromino400", 'cyan'],
+            [(14*PX,10*PX),"Tetromino400", 'blue'],
+            [(14*PX,12*PX),"Tetromino400", 'orange'],
+            [(14*PX,14*PX),"Tetromino400", 'yellow'],
+            [(14*PX,16*PX),"Tetromino400", 'red'],
+            [(14*PX,18*PX),"Tetromino400", 'lime'],
+            [(14*PX,20*PX),"Tetromino400", 'magenta']
         ]
     },
     'INTRO': {

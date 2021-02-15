@@ -1,7 +1,6 @@
 import os
-
 from random import randrange
-from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS, ARROW
+from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS, ARROW, NAME, SAVE_FILE
 
 import pygame
 from pygame import freetype, gfxdraw
@@ -56,7 +55,7 @@ def init_screen():
         flags = pygame.SCALED
     #####END DEBUG CODE#####
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
-    pygame.display.set_caption("PiTetromino")
+    pygame.display.set_caption(NAME)
 
 def init_font():
     '''
@@ -159,27 +158,52 @@ def get_next_random_tetromino():
     Tetromino.next_position = Tetromino.position = TETROMINO['surface_position']
     Tetromino.speed = Stats.level * 1.2
 
-def get_settings():
-    Stats.level = Arrow.level
-    Stats.name = "".join(Arrow.name) + Stats.suffix
-
 def init_new_game():
     '''
       | get a random tetromino from list to set Tetromino object
       | set True all game object update_surface variable to draw them on the screen
       | game over is a flag for end game
     '''
-    get_settings()
+    print("new game")
+    global start_ticks
+    start_ticks = pygame.time.get_ticks()
+    reset_settings()
     get_next_random_tetromino()
     Board.update_surface = True
     Board.pattern = Board.set_pattern()
     Tetromino.update_surface = True
     Stats.update_surface = True
 
+def reset_settings():
+    Stats.level = Arrow.level
+    Stats.name = "".join(Arrow.name)
+    Stats.score = 0
+    Stats.speed = 0
+    Stats.lines = 0
+
 def reset_arrow():
     Arrow.update_surface = True
     Arrow.update_settings = True
     Arrow.get_data(CONTENT[STATES[game_state]])
+
+##################
+#                #
+# GAME PROCESSES #
+#                #
+##################
+
+read_csv(SAVE_FILE)
+write_csv(SAVE_FILE, 'test')
+
+def save_score():
+    print('Score saved.')
+    read_csv(SAVE_FILE)
+    write_csv(SAVE_FILE, 'test')
+    print(Stats.name)
+    print(Stats.score)
+    print(Stats.lines)
+    print(Stats.level)
+    print(Stats.time)
 
 #####################
 #                   #
@@ -225,7 +249,7 @@ def draw_screen():
     '''
     if game_state == GSC['PLAY']:
         reset_screen()
-        write(font,screen,Stats.name_position,Stats.name,'white')
+        write(font,screen,Stats.name_position,Stats.name+Stats.suffix,'white')
     elif game_state == GSC['CONFIRM'] or game_state == GSC['OVER']:
         draw_confirm_box()
     else:
@@ -270,6 +294,9 @@ def draw_objects():
     return updated
 
 def draw_text_from_content():
+    '''
+      | Get all text content from data and write it on the surface
+    '''
     datas = CONTENT[STATES[game_state]]['text']
     for d in datas:
         position = d[0]
@@ -315,6 +342,9 @@ def draw_confirm_box():
 #################
 
 def game_over():
+    '''
+      | Update the flags that define a game over state
+    '''
     global game_state, update_screen
     game_state = GSC['OVER']
     Tetromino.game_over = False
@@ -358,6 +388,7 @@ def validation_key():
         game_state = GSC['NEW']
         update_screen = True
     elif game_state == GSC['CONFIRM']:
+        save_score()
         goto_menu()
     elif game_state == GSC['NEW']:
         game_state = GSC['PLAY']
@@ -476,11 +507,13 @@ def game_loop():
     '''
       | At each loop
       | 1. Check events input and change datas if game is playing
-      | 2. Update timers if game is playing to keep tetromino moving and stats up
-      | 3. Update screen & surfaces drawing if related flag raised True
-      | 4. Keep the FPS at 30 with clock
+      | 2. If the tetromino reach bottom, it's done, if it's reach up it's over:
+      |    1. If done, get next tetromino.
+      |    2. If over, score saved, game over.
+      | 3. Update clock if game playing, keep tetromino moving down and update timer
+      | 4. Update screen & surfaces drawing if related flag raised True
+      | 5. Keep the FPS clock at 60
     '''
-    start_ticks = pygame.time.get_ticks()
     game_running = True
     ####START DEBUG CODE####
     if DEBUG == True:
@@ -489,18 +522,19 @@ def game_loop():
         frames = 0
     #####END DEBUG CODE#####
     while game_running:
-        game_running = check_inputs()
+        game_running = check_inputs() #1
         if game_state == GSC['PLAY']:
-            if Tetromino.game_over == True:
+            if Tetromino.game_over == True: #2.1
+                save_score()
                 game_over()
-            elif Tetromino.done:
+            elif Tetromino.done: #2.2
                 get_next_random_tetromino()
-            else:
+            else: #3
                 game_ticks = pygame.time.get_ticks()
                 Tetromino.slide(game_ticks)
                 Stats.update_time(game_ticks - start_ticks)
-        game_drawing()
-        clock.tick(60)
+        game_drawing() #4
+        clock.tick(60) #5
         ####START DEBUG CODE####
         if DEBUG == True:
             frames += 1
