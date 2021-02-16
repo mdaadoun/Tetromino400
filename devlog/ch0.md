@@ -51,3 +51,10 @@ Collision system : The pieces can't go through the other blocks on the grid.
 ### **20/11/2016**
 
 * I returned to the tetris code to continue the development.
+
+### **01/01/2021**
+
+* Well I returned to the Tetris game five years later... not with Superpowers though.
+But with Python and Pygame as a transition project to prepare for a bigger project.
+Well and it was the opportunity to close an unfinished business. :)
+Bye Tetris devlog.
