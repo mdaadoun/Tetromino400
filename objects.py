@@ -1,17 +1,18 @@
+# objects.py
 from string import ascii_uppercase as alphabet
 from api import *
 import math
 
 class Tetromino:
     def __init__(self, name, size, color, shape, position, debug=False):
-        '''
-            Next : The next tetromino object
-            surface_size : Size of the tetromino surface
-            name : Tetromino name (I, L, J, T, O, I, S, Z)
-            color : Tetromino color
-            alpha : The alpha color for transparency
-            volume_shape : pixel number in one shape
-        '''
+        """
+        | Next : The next tetromino object
+        | surface_size : Size of the tetromino surface
+        | name : Tetromino name (I, L, J, T, O, I, S, Z)
+        | color : Tetromino color
+        | alpha : The alpha color for transparency
+        | volume_shape : pixel number in one shape
+        """
         self.Next = None
         self.surface_size = size
         self.name = name
@@ -38,9 +39,9 @@ class Tetromino:
             #self.debug_draw_all()
 
     def set_tuple(self, data):
-        '''
-            prepare a single tupple with the shape data and return it
-        '''
+        """
+        | prepare a single tupple with the shape data and return it
+        """
         shapelist = []
         for shape in data:
             for line in range(4):
@@ -56,9 +57,9 @@ class Tetromino:
         return shapetuple
 
     def debug_draw_all(self):
-        '''
-            draw all shapes in text from the tuple
-        '''
+        """
+        | draw all shapes in text from the tuple
+        """
         print(self.name)
         print(self.color)
         for rotation in range(self.max_rotations):
@@ -80,11 +81,11 @@ class Tetromino:
                 print('')
 
     def draw(self, surface, grid, debug=False, clear=False):
-        '''
-            draw the shape on the given surface with the given rotation
-            loop the self.shape built tupple using an offset with self.start
-            if clear flag is True, draw the previous rotation for clearing
-        '''
+        """
+        | draw the shape on the given surface with the given rotation
+        | loop the self.shape built tupple using an offset with self.start
+        | if clear flag is True, draw the previous rotation for clearing
+        """
         if self.done is not True:
             if clear:
                 color='black'
@@ -108,11 +109,11 @@ class Tetromino:
             #self.debug_draw()
 
     def slide(self, timer):
-        '''
-          | Use frames per seconds and speed to keep down
-          | when using move 1 is the key for down
-          | after a check return the nb of lines with self.move or 0
-        '''
+        """
+        | Use frames per seconds and speed to keep down
+        | when using move 1 is the key for down
+        | after a check return the nb of lines with self.move or 0
+        """
         if self.done is not True:
             self.next_slide = self.next_slide - self.speed
             if self.next_slide <= 0:
@@ -120,19 +121,19 @@ class Tetromino:
                 return self.move(1)
 
     def move(self, direction):
-        '''
-          | check if next position is possible
-          | if yes :
-          | * save previous position
-          | * uptade position
-          | * play movement sound
-          | * else play the blocked sound
-          | 1 : DOWN = GO FASTER
-          | 2 : LEFT = GO LEFT
-          | 3 : RIGHT = GO RIGHT
-          | 4 : SPACE & RETURN = JUMP DOWN
-          | * the flag move_aside is to give priority moving aside over going down
-        '''
+        """
+        | check if next position is possible
+        | if yes :
+        | * save previous position
+        | * uptade position
+        | * play movement sound
+        | * else play the blocked sound
+        | 1 : DOWN = GO FASTER
+        | 2 : LEFT = GO LEFT
+        | 3 : RIGHT = GO RIGHT
+        | 4 : SPACE & RETURN = JUMP DOWN
+        | * the flag move_aside is to give priority moving aside over going down
+        """
         if self.done is not True:
             p = self.position
             x,y = p[0],p[1]
@@ -150,23 +151,23 @@ class Tetromino:
             self.update_surface = True
 
     def rotate(self):
-        '''
-          | check if next rotation is possible
-          | if yes :
-          | * save previous rotation
-          | * get the next rotation
-          | * play rotating sound
-          | * else play the blocked sound
-        '''
+        """
+        | check if next rotation is possible
+        | if yes :
+        | * save previous rotation
+        | * get the next rotation
+        | * play rotating sound
+        | * else play the blocked sound
+        """
         if self.done is not True:
             self.next_rotation = (self.rotation + 1)%self.max_rotations
             self.update_surface = True
 
     def set_update(self):
-        '''
-          | if the tetromino can move, update to next position and/or rotation
-          | if not, reset next datas to current datas
-        '''
+        """
+        | if the tetromino can move, update to next position and/or rotation
+        | if not, reset next datas to current datas
+        """
         if self.update == True:
             self.rotation = self.next_rotation
             self.position = self.next_position
@@ -176,14 +177,14 @@ class Tetromino:
         self.move_aside = False
 
     def check_update(self, Board):
-        '''
-          | prepare data for collision checking :
-          |   lt & lr : are the limit left and right of the board
-          | check if tetromino can move and rotate, raise update flag if yes
-          | raise the flag self.done if the tetromino collide from the bottom
-          | return the board_collision list [Flag if collision, New Pattern]
-          | If not None, will be used by Board and Stats to update game datas
-        '''
+        """
+        | prepare data for collision checking :
+        |   lt & lr : are the limit left and right of the board
+        | check if tetromino can move and rotate, raise update flag if yes
+        | raise the flag self.done if the tetromino collide from the bottom
+        | return the board_collision list [Flag if collision, New Pattern]
+        | If not None, will be used by Board and Stats to update game datas
+        """
         lt = Board.surface_position[0]
         lr = Board.surface_position[0] + Board.width
         side_collision = self.check_side_collision(lt, lr)
@@ -201,13 +202,13 @@ class Tetromino:
         return board_collision[1]
 
     def get_side_limits(self):
-        '''
-          | Return left & right x coordinate of tetromino
-          | c : index to count the column number Tetromino size got
-          | size : (c*8) : nb of column * nb of pixel by column
-          | left : value of x coordinate
-          | right : value of left coordinate + size of Tetromino
-        '''
+        """
+        | Return left & right x coordinate of tetromino
+        | c : index to count the column number Tetromino size got
+        | size : (c*8) : nb of column * nb of pixel by column
+        | left : value of x coordinate
+        | right : value of left coordinate + size of Tetromino
+        """
         c = 4
         self.offset = self.next_rotation*self.volume_shape
         check = True
@@ -225,16 +226,16 @@ class Tetromino:
         return (left,right)
 
     def check_side_collision(self,lt,lr):
-        '''
-          | Check sides of the tetromino with board limits
-          | board limits : left (lt) & right (lr)
-          | ts : Tetromino size, to get collision limits
-          | xl : Check the x coordinate of the tetromino left side
-          | xr : Check the x coordinate of the tetromino right side
-          | c : Collision flag
-          | In the special case of the I Tetromino, the rotation is made
-          |  possible when close to the right limit by moving its left coordinates
-        '''
+        """
+        | Check sides of the tetromino with board limits
+        | board limits : left (lt) & right (lr)
+        | ts : Tetromino size, to get collision limits
+        | xl : Check the x coordinate of the tetromino left side
+        | xr : Check the x coordinate of the tetromino right side
+        | c : Collision flag
+        | In the special case of the I Tetromino, the rotation is made
+        |  possible when close to the right limit by moving its left coordinates
+        """
         ts = self.get_side_limits()
         xl, xr = ts[0], ts[1]
         c = False
@@ -247,26 +248,26 @@ class Tetromino:
         return c
 
     def check_board_collision(self,Board):
-        '''
-          | First we gather all the datas needed to check
-          | We work with square grid of 8 pixel.
-          | For the pattern :
-          |   The pattern tupple, with 0 for empty square, 1 for occuped
-          |   The pattern size that we store as colums and lines (in squares not pixels)
-          |     The 1 added to lines is for representing the pattern floor
-          |   It's top/left coordinates that we store as px_start & py_start
-          |   The total of squares in the pattern (lines*columns)
-          | For the tetromino we want to test :
-          |   We store the correct shape using index in a variable shape
-          | With those data, we build one lists :
-          |   All the coordinates of the Tetromino occupied square
-          | First we check if there is no square out of the pattern bottom limit
-          | Then we compare those two lists with each other :
-          |   If there is an identical pair, there is collision, return True
-          |     The board get the coordinates of the Tetromino to update the pattern
-          |     The game get the next Tetromino
-          |   Else, we return False and keep going.
-        '''
+        """
+        | First we gather all the datas needed to check
+        | We work with square grid of 8 pixel.
+        | For the pattern :
+        |   The pattern tupple, with 0 for empty square, 1 for occuped
+        |   The pattern size that we store as colums and lines (in squares not pixels)
+        |     The 1 added to lines is for representing the pattern floor
+        |   It's top/left coordinates that we store as px_start & py_start
+        |   The total of squares in the pattern (lines*columns)
+        | For the tetromino we want to test :
+        |   We store the correct shape using index in a variable shape
+        | With those data, we build one lists :
+        |   All the coordinates of the Tetromino occupied square
+        | First we check if there is no square out of the pattern bottom limit
+        | Then we compare those two lists with each other :
+        |   If there is an identical pair, there is collision, return True
+        |     The board get the coordinates of the Tetromino to update the pattern
+        |     The game get the next Tetromino
+        |   Else, we return False and keep going.
+        """
         collision = False
         grid = 8
         pattern = Board.pattern
@@ -351,11 +352,11 @@ class Board:
         self.update_surface = False
 
     def draw(self, surface, grid, debug=False):
-        '''
-            Draw the Board borders
-            Draw the Board content
-            Draw the Grid if debug is on
-        '''
+        """
+        | Draw the Board borders
+        | Draw the Board content
+        | Draw the Grid if debug is on
+        """
         self.draw_borders(surface, grid, 'grey')
         self.draw_pattern(surface, grid, 'white')
         self.update_surface = False
@@ -393,11 +394,11 @@ class Board:
                 line(surface,(x,0), (x, self.height), color)
 
     def set_pattern(self):
-        '''
-          | Set an empty (0) pattern using the board size minus its borders
-          | Add the last line for the floor as occupied (1)
-          | Return a tuple from the list
-        '''
+        """
+        | Set an empty (0) pattern using the board size minus its borders
+        | Add the last line for the floor as occupied (1)
+        | Return a tuple from the list
+        """
         x = self.pattern_size[0]
         y = self.pattern_size[1]
         pattern = [0,]*(x*y)
@@ -405,11 +406,11 @@ class Board:
         return tuple(pattern)
 
     def update_pattern(self, new_pattern):
-        '''
-          | Check if there is lines complete
-          | Update Board pattern
-          | Raise flag for Board update
-        '''
+        """
+        | Check if there is lines complete
+        | Update Board pattern
+        | Raise flag for Board update
+        """
         lines = 0
         if new_pattern is not None:
             check = self.check_pattern(new_pattern)
@@ -419,13 +420,13 @@ class Board:
         return lines
 
     def check_pattern(self,pattern):
-        '''
-          | check from bottom up if line are completed (full line of 1)
-          | Lines start at -1 to take into account the floor line of the pattern
-          | if yes, increments lines numbers and return it
-          | Add removed lines as new lines of 0 at the top of pattern
-          | return the new pattern removed from the completed lines
-        '''
+        """
+        | check from bottom up if line are completed (full line of 1)
+        | Lines start at -1 to take into account the floor line of the pattern
+        | if yes, increments lines numbers and return it
+        | Add removed lines as new lines of 0 at the top of pattern
+        | return the new pattern removed from the completed lines
+        """
         lines = -1
         line_length = self.pattern_size[0]
         new_pattern = []
@@ -469,12 +470,12 @@ class Stats:
         self.name = 'AAA'
 
     def draw(self, surface, grid, font, debug=False):
-        '''
-            Draw the next tetromino box
-            Draw the stats titles
-            Draw the stats data
-            Draw the grid if debug is on
-        '''
+        """
+        | Draw the next tetromino box
+        | Draw the stats titles
+        | Draw the stats data
+        | Draw the grid if debug is on
+        """
         clear(surface,'black')
         self.draw_next_tetromino(surface, grid, self.next_box)
         self.draw_stats(font, surface, grid, self.stats_titles)
@@ -524,9 +525,9 @@ class Stats:
         return self.stats
 
     def set_time_string(self):
-        '''
-          | Format the given secondes
-        '''
+        """
+        | Format the given secondes
+        """
         time_text = ['00','00','00']
         secondes = self.time
         time_text[2] = str(secondes%60)
@@ -552,9 +553,9 @@ class Stats:
             self.update_surface = True
 
     def update_score(self,lines):
-        '''
-          | Stats SCORE is index 3
-        '''
+        """
+        | Stats SCORE is index 3
+        """
         self.lines += lines
         if lines == 1:
             self.score += 1 * self.level
@@ -571,9 +572,9 @@ class Stats:
 
 class Arrow:
     def __init__(self, data):
-        '''
-          | update surface flag
-        '''
+        """
+        | update surface flag
+        """
         self.update_surface = False
         self.surface_size = data['surface_size']
         self.selection = 0
@@ -624,16 +625,16 @@ class Arrow:
         self.previous_position = self.position
 
     def move(self, key, state):
-        '''
-          | change position of the key
-          | At game state Menu (3), arrows used to select an other game state
-          | At game state New Game (4), arrows used to change settings  (name, speed)
-          | keys :
-          | 0 : UP
-          | 1 : DOWN
-          | 2 : LEFT
-          | 3 : RIGHT
-        '''
+        """
+        | change position of the key
+        | At game state Menu (3), arrows used to select an other game state
+        | At game state New Game (4), arrows used to change settings  (name, speed)
+        | keys :
+        | 0 : UP
+        | 1 : DOWN
+        | 2 : LEFT
+        | 3 : RIGHT
+        """
         if state == 3:
             if key == 0:
                 self.update_selection(-1)
@@ -650,12 +651,12 @@ class Arrow:
                 self.update_selection(1)
 
     def update_setting(self, direction):
-        '''
-          | Check if the input was up or down
-          | if the selection is level up/down of 1 the level
-          | if the selection is a letter from the name, get next letter from alphabet
-          | raise the flag to draw settings
-        '''
+        """
+        | Check if the input was up or down
+        | if the selection is level up/down of 1 the level
+        | if the selection is a letter from the name, get next letter from alphabet
+        | raise the flag to draw settings
+        """
         if direction == 1:
             if self.selection == 3:
                 if self.level < 9:
@@ -679,12 +680,12 @@ class Arrow:
         self.update_settings = True
 
     def get_next_letter(self, letter, direction):
-        '''
-          | Get a letter_list from the python string ascii_uppercase
-          | Retrieve the list index of the current letter
-          | Change the index with the direction and check for limits
-          | Return the new letter (modified index to retrieve the corresponding letter)
-        '''
+        """
+        | Get a letter_list from the python string ascii_uppercase
+        | Retrieve the list index of the current letter
+        | Change the index with the direction and check for limits
+        | Return the new letter (modified index to retrieve the corresponding letter)
+        """
         letter_list = list(alphabet)
         index = letter_list.index(letter)
         index = index + direction
@@ -696,10 +697,10 @@ class Arrow:
         return letter_list[index]
 
     def get_data(self, content):
-        '''
-          | get the arrow data from current selection
-          | position, color and target
-        '''
+        """
+        | get the arrow data from current selection
+        | position, color and target
+        """
         self.index_max = len(content['arrowselect']) - 1
         self.shape = content['arrowshape']
         options = content['arrowselect'][self.selection]

@@ -1,7 +1,12 @@
 #: 1 GRID PIXEL (PX) = SIZE GRID = 8 pixel
 PX = GRID = 8
 NAME = 'Tetromino400'
-SAVE_FILE = 'save.csv'
+
+#: SAVE
+saves = {
+    'file_name':'save.csv',
+    'options':('name','score','lines','level','time')
+}
 
 #: SCREEN SIZE
 screensizes = {
@@ -406,6 +411,7 @@ STATS = stats
 ARROW = arrow
 TETROMINO = tetromino
 TETROMINOSHAPES = tetrominoshapes
+SAVES = saves
 '''
     GLOBAL DATA
     | Prepare all the datas to use in game

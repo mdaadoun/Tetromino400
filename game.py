@@ -1,6 +1,9 @@
+# game.py
 import os
 from random import randrange
-from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS, ARROW, NAME, SAVE_FILE
+from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, \
+    CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS, \
+    ARROW, NAME, SAVES
 
 import pygame
 from pygame import freetype, gfxdraw
@@ -16,18 +19,18 @@ from debug import *
 ##################
 
 def init_game():
-    '''
-      | init_game is called once the program start and prepare the program with
-      | Check and init_gamepad as an extra input device if available
-      | init_screen create the main program window
-      | init_objects prepare the games objects
-      | init_surfaces prepare the others game surfaces
-      | init_font prepare the global font
-      | init_timer prepare the global clock used for timers
-      | set update_screen flag at True for the first drawing of screen surface
-      | set game_state flag with GSC to give code of the first game state : TITLE
-      | start the game loop
-    '''
+    """
+    | init_game is called once the program start and prepare the program with
+    | Check and init_gamepad as an extra input device if available
+    | init_screen create the main program window
+    | init_objects prepare the games objects
+    | init_surfaces prepare the others game surfaces
+    | init_font prepare the global font
+    | init_timer prepare the global clock used for timers
+    | set update_screen flag at True for the first drawing of screen surface
+    | set game_state flag with GSC to give code of the first game state : TITLE
+    | start the game loop
+    """
     global update_screen, game_state
     pygame.display.init()
     init_gamepad()
@@ -54,15 +57,16 @@ def init_screen():
     if DEBUG:
         flags = pygame.SCALED
     #####END DEBUG CODE#####
+    #if not DEBUG:
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     pygame.display.set_caption(NAME)
 
 def init_font():
-    '''
-      | Init the freetype pygame module
-      | Retrieve the real path of the current script from __file__
-      | Load the font at the same path
-    '''
+    """
+    | Init the freetype pygame module
+    | Retrieve the real path of the current script from __file__
+    | Load the font at the same path
+    """
     global font
     freetype.init()
     path = os.path.dirname(os.path.realpath(__file__))
@@ -87,18 +91,18 @@ def init_gamepad():
         for i, gp in enumerate(gamepad):
             name = gp.get_name()
             print(f"The gamepad {i+1} is named: {name}")
-        print(f"Only the first gamepad is used.")
+        print("Only the first gamepad is used.")
 
 def init_objects():
-    '''
-      | Prepare the objects the game will use
-      | 3 Objects and a list of 7 Tetromino objects :
-      | Arrow, Board, Stats : main game objects
-      | tetrominos : list of Tetrominos objects
-      |     The Tetromino Class Variable refers alternatively
-      |     to one of the object of the tetrominos list
-      |     First playing Tetromino is randomly chosen from this list
-    '''
+    """
+    | Prepare the objects the game will use
+    | 3 Objects and a list of 7 Tetromino objects :
+    | Arrow, Board, Stats : main game objects
+    | tetrominos : list of Tetrominos objects
+    |     The Tetromino Class Variable refers alternatively
+    |     to one of the object of the tetrominos list
+    |     First playing Tetromino is randomly chosen from this list
+    """
     global Board, Stats, Arrow
     Arrow = objects.Arrow(ARROW)
     Board = objects.Board(BOARD)
@@ -106,9 +110,9 @@ def init_objects():
     init_tetrominos_objects()
 
 def init_tetrominos_objects():
-    '''
-      | All differents tetrominos are initialized in the list
-    '''
+    """
+    | All differents tetrominos are initialized in the list
+    """
     global tetrominos
     tetrominos = []
     size = TETROMINO['surface_size']
@@ -116,15 +120,17 @@ def init_tetrominos_objects():
     for name in TETROMINOSHAPES:
         color = TETROMINOSHAPES[name]['color']
         shape = TETROMINOSHAPES[name]['shape']
-        tetrominos.append(objects.Tetromino(name,size,color,shape,position,DEBUG))
+        tetrominos.append(
+            objects.Tetromino(name,size,color,shape,position,DEBUG)
+        )
 
 def init_surfaces():
-    '''
-      | Prepare the surfaces the game will use
-      | 4 Surfaces :
-      | arrow_surface, board_surface, stats_surface, tetromino_surface
-      | set to arrow and tetromino surfaces the pink color for transparency
-    '''
+    """
+    | Prepare the surfaces the game will use
+    | 4 Surfaces :
+    | arrow_surface, board_surface, stats_surface, tetromino_surface
+    | set to arrow and tetromino surfaces the pink color for transparency
+    """
     global arrow_surface,board_surface,stats_surface,tetromino_surface
     arrow_surface = pygame.Surface(Arrow.surface_size)
     board_surface = pygame.Surface(Board.surface_size)
@@ -134,12 +140,12 @@ def init_surfaces():
     tetromino_surface.set_colorkey(COLORS['pink'])
 
 def get_next_random_tetromino():
-    '''
-      | Return a new object tetromino at given position
-      | randomly chosen from the tetrominos list
-      | with a random starting rotation
-      | set Tetromino.done flag as False, to start updating
-    '''
+    """
+    | Return a new object tetromino at given position
+    | randomly chosen from the tetrominos list
+    | with a random starting rotation
+    | set Tetromino.done flag as False, to start updating
+    """
     global Tetromino
     choice = randrange(0,len(tetrominos))
     try:
@@ -159,11 +165,11 @@ def get_next_random_tetromino():
     Tetromino.speed = Stats.level * 1.2
 
 def init_new_game():
-    '''
-      | get a random tetromino from list to set Tetromino object
-      | set True all game object update_surface variable to draw them on the screen
-      | game over is a flag for end game
-    '''
+    """
+    | get a random tetromino from list to set Tetromino object
+    | set True all game object update_surface variable to draw them on the screen
+    | game over is a flag for end game
+    """
     print("new game")
     global start_ticks
     start_ticks = pygame.time.get_ticks()
@@ -186,24 +192,38 @@ def reset_arrow():
     Arrow.update_settings = True
     Arrow.get_data(CONTENT[STATES[game_state]])
 
-##################
-#                #
-# GAME PROCESSES #
-#                #
-##################
+####################
+#                  #
+# CUSTOM PROCESSES #
+#                  #
+####################
 
-read_csv(SAVE_FILE)
-write_csv(SAVE_FILE, 'test')
+#read_csv(SAVE_FILE)
+#erase_file(SAVE_FILE)
+#data = get_dict_from_csv(SAVE_FILE)
+#write_csv(SAVE_FILE, 'test')
+#send_dict_to_csv(SAVE_FILE, data)
+
+def check_save_file(file_name):
+    options = SAVES['options']
+    set_file(file_name, options)
 
 def save_score():
+    """
+    | Retrieve save data information
+    | Set the data of the last game in a tuple
+    | Write the data as a tuple in a list of length 1 for the save file
+    """
+    file_name = SAVES['file_name']
+    check_save_file(file_name)
+    s = Stats
+    save = [(s.name,str(s.score),str(s.lines),str(s.level),str(s.time))]
+    write_csv(file_name, save)
+    read = read_csv(file_name)
+    print(read[0])
+    print(read[1])
+    #erase_file(file_name)
     print('Score saved.')
-    read_csv(SAVE_FILE)
-    write_csv(SAVE_FILE, 'test')
-    print(Stats.name)
-    print(Stats.score)
-    print(Stats.lines)
-    print(Stats.level)
-    print(Stats.time)
 
 #####################
 #                   #
@@ -212,12 +232,12 @@ def save_score():
 #####################
 
 def game_drawing():
-    '''
-      | Using differents flags
-      | Draw screen
-      | Draw objects
-      | Update display
-    '''
+    """
+    | Using differents flags
+    | Draw screen
+    | Draw objects
+    | Update display
+    """
     global update_screen
     screen_updated = False
     if update_screen == True:
@@ -234,19 +254,19 @@ def game_drawing():
         #####END DEBUG CODE#####
 
 def reset_screen():
-    '''
-      | Clear screen, draw the program 1 px border
-    '''
+    """
+    | Clear screen, draw the program 1 px border
+    """
     clear(screen)
     rectangle(screen, (0,0,WIDTH,HEIGHT),'silver', False)
 
 def draw_screen():
-    '''
-      | Draw the correct content according to game state
-      | For PLAY game state, clear the screen for object only
-      | For CONFIRM, no clearing, draw confirm box over the game
-      | For others game states, clear the screen then draw the text content
-    '''
+    """
+    | Draw the correct content according to game state
+    | For PLAY game state, clear the screen for object only
+    | For CONFIRM, no clearing, draw confirm box over the game
+    | For others game states, clear the screen then draw the text content
+    """
     if game_state == GSC['PLAY']:
         reset_screen()
         write(font,screen,Stats.name_position,Stats.name+Stats.suffix,'white')
@@ -258,12 +278,12 @@ def draw_screen():
         draw_global_message()
 
 def draw_objects():
-    '''
-      | Draw the correct surface when flag of related object is up
-      | Is the Game State is a playing state :
-      |     Draw game board, game stats+next tetromino, game current tetromino
-      | For Arrow object, clear the surface before drawing
-    '''
+    """
+    | Draw the correct surface when flag of related object is up
+    | Is the Game State is a playing state :
+    |     Draw game board, game stats+next tetromino, game current tetromino
+    | For Arrow object, clear the surface before drawing
+    """
     updated = False
     if game_state == GSC['PLAY']:
         if Board.update_surface == True:
@@ -294,9 +314,9 @@ def draw_objects():
     return updated
 
 def draw_text_from_content():
-    '''
-      | Get all text content from data and write it on the surface
-    '''
+    """
+    | Get all text content from data and write it on the surface
+    """
     datas = CONTENT[STATES[game_state]]['text']
     for d in datas:
         position = d[0]
@@ -305,9 +325,9 @@ def draw_text_from_content():
         write(font, screen, position, text, color)
 
 def draw_global_message():
-    '''
-      | Draw a message in a rectangle at the bottom of the screen
-    '''
+    """
+    | Draw a message in a rectangle at the bottom of the screen
+    """
     if game_state == GSC['MENU']:
         datas = CONTENT['GLOBAL']['menu_continue']
     elif game_state == GSC['NEW']:
@@ -321,9 +341,9 @@ def draw_global_message():
     write(font,screen,position,text,color)
 
 def draw_confirm_box():
-    '''
-      | Draw a centered box with a message
-    '''
+    """
+    | Draw a centered box with a message
+    """
     state = STATES[game_state]
     datas = [CONTENT[state]['confirm'], CONTENT[state]['info'], CONTENT[state]['continue']]
     box = CONTENT[state]['box']
@@ -342,38 +362,38 @@ def draw_confirm_box():
 #################
 
 def game_over():
-    '''
-      | Update the flags that define a game over state
-    '''
+    """
+    | Update the flags that define a game over state
+    """
     global game_state, update_screen
     game_state = GSC['OVER']
     Tetromino.game_over = False
     update_screen = True
 
 def goto_menu():
-    '''
-      | reset settings and go to MENU game state
-    '''
+    """
+    | reset settings and go to MENU game state
+    """
     global game_state, update_screen
     game_state = GSC['MENU']
     update_screen = True
     reset_arrow()
 
 def validation_key():
-    '''
-      | Most game state, move to an other game state
-      | but in Menu state, move to the arrow selected choice
-      | and in Play state, is it a game input that move the Tetromino
-      | STATES :
-      | * TITLE : Title screen
-      | * INTRO : Introduction screen
-      | * MENU : Menu screen
-      | * SCORE : Highscores screen
-      | * NEW : New Game screen / Start Settings
-      | * PLAY : Game Playing screen
-      | * OVER : Game Over screen
-      | * EXIT : Flag to Exit the Game
-    '''
+    """
+    | Most game state, move to an other game state
+    | but in Menu state, move to the arrow selected choice
+    | and in Play state, is it a game input that move the Tetromino
+    | STATES :
+    | * TITLE : Title screen
+    | * INTRO : Introduction screen
+    | * MENU : Menu screen
+    | * SCORE : Highscores screen
+    | * NEW : New Game screen / Start Settings
+    | * PLAY : Game Playing screen
+    | * OVER : Game Over screen
+    | * EXIT : Flag to Exit the Game
+    """
     global game_state, update_screen
     if game_state == GSC['PLAY']:
         move_key(4)
@@ -402,13 +422,13 @@ def validation_key():
         reset_arrow()
 
 def escape_key():
-    '''
-      | Most game states return to MENU state,
-      | but in PLAY state ask a confirmation before
-      | in CONFIRM state which pause the game, cancel the confirm state
-      | in MENU state leave the game
-      | if DEBUG, leave program immediatly
-    '''
+    """
+    | Most game states return to MENU state,
+    | but in PLAY state ask a confirmation before
+    | in CONFIRM state which pause the game, cancel the confirm state
+    | in MENU state leave the game
+    | if DEBUG, leave program immediatly
+    """
     global game_state, update_screen
     if game_state == GSC['PLAY']:
         game_state = GSC['CONFIRM']
@@ -425,16 +445,16 @@ def escape_key():
         goto_menu()
 
 def move_key(key):
-    '''
-      | At all states except PLAY, inputs used to move arrows
-      | At game state PLAY, inputs used to interact with the tetromino
-      | 0 : UP = ROTATE TETROMINO (cw=clockwise)
-      | 1 : DOWN = GO FASTER
-      | 2 : LEFT = GO LEFT
-      | 3 : RIGHT = GO RIGHT
-      | 4 : SPACE & RETURN = JUMP DOWN
-      | The Stats score is updated if a Tetromino return completed lines
-    '''
+    """
+    | At all states except PLAY, inputs used to move arrows
+    | At game state PLAY, inputs used to interact with the tetromino
+    | 0 : UP = ROTATE TETROMINO (cw=clockwise)
+    | 1 : DOWN = GO FASTER
+    | 2 : LEFT = GO LEFT
+    | 3 : RIGHT = GO RIGHT
+    | 4 : SPACE & RETURN = JUMP DOWN
+    | The Stats score is updated if a Tetromino return completed lines
+    """
     if game_state == GSC['MENU'] or game_state == GSC['NEW']:
         Arrow.move(key, game_state)
         reset_arrow()
@@ -445,15 +465,15 @@ def move_key(key):
             Tetromino.move(key)
 
 def check_inputs():
-    '''
-      | check player possible inputs
-      | * the exit window
-      | * the escape input
-      | * the space & return input
-      | * the 4 arrows input
-      | * the gamepad inputs
-      | check game_state to return True or False to loop running
-    '''
+    """
+    | check player possible inputs
+    | * the exit window
+    | * the escape input
+    | * the space & return input
+    | * the 4 arrows input
+    | * the gamepad inputs
+    | check game_state to return True or False to loop running
+    """
     global game_state
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -476,9 +496,9 @@ def check_inputs():
     return check_exit(game_state)
 
 def get_gamepad_input():
-    '''
-      | Check the used input of the gamepad
-    '''
+    """
+    | Check the used input of the gamepad
+    """
     gp = gamepad[0]
     ax_up_dn = gp.get_axis(1)
     ax_lf_rg = gp.get_axis(0)
@@ -504,16 +524,16 @@ def get_gamepad_input():
 #############
 
 def game_loop():
-    '''
-      | At each loop
-      | 1. Check events input and change datas if game is playing
-      | 2. If the tetromino reach bottom, it's done, if it's reach up it's over:
-      |    1. If done, get next tetromino.
-      |    2. If over, score saved, game over.
-      | 3. Update clock if game playing, keep tetromino moving down and update timer
-      | 4. Update screen & surfaces drawing if related flag raised True
-      | 5. Keep the FPS clock at 60
-    '''
+    """
+    | At each loop
+    | 1. Check events input and change datas if game is playing
+    | 2. If the tetromino reach bottom, it's done, if it's reach up it's over:
+    |    1. If done, get next tetromino.
+    |    2. If over, score saved, game over.
+    | 3. Update clock if game playing, keep tetromino moving down and update timer
+    | 4. Update screen & surfaces drawing if related flag raised True
+    | 5. Keep the FPS clock at 60
+    """
     game_running = True
     ####START DEBUG CODE####
     if DEBUG == True:

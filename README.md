@@ -37,7 +37,7 @@ Also I need help to make it safely FLOSS compatible as possible, I used sounds a
 ### Install the game :
 
 ```
-pip install PiTetromino400
+pip install Tetromino400
 ```
 * **pip3** if pip is used by python 2
 
