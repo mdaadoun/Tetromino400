@@ -3,19 +3,18 @@ from api import *
 from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, CONTENT, COLORS, BOARD, TETROMINOSHAPES
 
 # DEBUG HELPER
-'''
-    debug_draw_grid : display a 8x8 grid on all the screen surface
-'''
-
-DEBUG = False
+"""
+| debug_draw_grid : display a 8x8 grid on all the screen surface
+"""
+DEBUG = False 
+START_STATE = "SCORE"
 DEBUG_GRID = False
 DEBUG_STATS = False
-DEBUG_PLAY = True
 
 def debug_draw_grid(screen):
-    '''
-        Draw a 8x8 red grid over all the screen
-    '''
+    """
+    | Draw a 8x8 red grid over all the screen
+    """
     if DEBUG_GRID:
         for i in range(0, WIDTH, GRID):
             line(screen, (i,0), (i,HEIGHT), 'red')
@@ -23,9 +22,9 @@ def debug_draw_grid(screen):
                 line(screen, (0,i), (WIDTH,i), 'red')
 
 def debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames):
-    '''
-        Write game states like frames per seconds, time since program launched, etc...
-    '''
+    """
+    | Write game states like frames per seconds, time since program launched, etc...
+    """
     if DEBUG_STATS:
         time = pygame.time.get_ticks()
         timer = time - start_ticks
@@ -42,10 +41,7 @@ def debug_write_stats(font,screen,start_ticks,clock,updated_frames,frames):
         write(font,screen, (0,7*GRID), 'fps:' + str(fps))
 
 def debug_game():
-    '''
-        Return the game data to start at play mode directly
-    '''
-    if DEBUG_PLAY:
-        return GSC['PLAY']
-    else:
-        return GSC['MENU']
+    """
+    | Return game state
+    """
+    return GSC[START_STATE]

@@ -357,7 +357,7 @@ class Board:
         | Draw the Board content
         | Draw the Grid if debug is on
         """
-        self.draw_borders(surface, grid, 'grey')
+        self.draw_borders(surface, grid, 'iron')
         self.draw_pattern(surface, grid, 'white')
         self.update_surface = False
 

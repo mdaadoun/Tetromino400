@@ -1,7 +1,7 @@
 import sys
 import csv
 import pygame
-from data import GRID, GSC, COLORS
+from data import GRID, GSC, COLORS, SAVES
 
 # HELPER FUNCTIONS
 
@@ -18,19 +18,19 @@ def blit(surface1, surface2, position):
     '''
     surface1.blit(surface2, position)
 
-def write(font, surface, position, text, color='grey', size=GRID):
+def write(font, surface, position, text, color='iron', size=GRID):
     '''
         write a text at position (x,y)
     '''
     font.render_to(surface,position,text,COLORS[color],None,0,0,size)
 
-def line(surface, pos1, pos2, color='grey'):
+def line(surface, pos1, pos2, color='iron'):
     '''
         draw a line between position 1 (x1,y1) and position 2 (x2,y2)
     '''
     pygame.gfxdraw.line(surface,pos1[0],pos1[1],pos2[0],pos2[1],COLORS[color])
 
-def rectangle(surface, rect, color='grey',fill=True):
+def rectangle(surface, rect, color='iron',fill=True):
     '''
         draw a rectangle with position top left and width and height
         (x,y,width,height)
@@ -40,7 +40,7 @@ def rectangle(surface, rect, color='grey',fill=True):
     else:
         pygame.gfxdraw.rectangle(surface,rect,COLORS[color])
 
-def pixel(surface, position, color='grey'):
+def pixel(surface, position, color='iron'):
     '''
         draw a pixel at position x and y on the given surface
     '''
@@ -61,6 +61,10 @@ def quit():
     pygame.quit()
     sys.exit()
 
+#######
+# CSV #
+#######
+
 def read_csv(file_name):
     rows = []
     titles = ()
@@ -78,16 +82,21 @@ def read_csv(file_name):
 def erase_file(file_name):
     open(file_name, 'w').close()
 
-def set_file(file_name, options):
+def set_file(file_name, headers):
+    """
+    | Check if file exist, if not recreate the csv file with the headers header
+    """
     data = [None]
     try:
         data = read_csv(file_name)
     except FileNotFoundError:
         open(file_name,'w')
-    if options != data[0]:
-        print('The data file got as a problem, rebuilding.')
+    if headers != data[0]:
+        print('The save file got a problem, rebuilding.')
         erase_file(file_name)
-        newdata = (options, ('VXD','0','0','1','1'))
+        newdata = SAVES['file_start']
+        newdata.insert(0,headers)
+        print(newdata)
         write_csv(file_name,newdata)
 
 def write_csv(file_name, data):

@@ -5,7 +5,15 @@ NAME = 'Tetromino400'
 #: SAVE
 saves = {
     'file_name':'save.csv',
-    'options':('name','score','lines','level','time')
+    'options':('name','score','lines','level','time'),
+    'file_start':
+                [
+                 ('VXD','101','10','4','00:10:00'),
+                 ('VXD','2','0','1','00:08:11'),
+                 ('VXD','9','0','8','00:00:21'),
+                 ('VXD','20','0','3','00:05:41'),
+                 ('VXD','1','0','1','01:01:01')
+                ]
 }
 
 #: SCREEN SIZE
@@ -17,32 +25,32 @@ screensizes = {
     'lines':30
 }
 
-#: COLORS DATA - 4 + 20 colors
+#: COLORS DATA - PAX-24 colors
 colorslist = {
-    'black':(0,0,0),
-    'grey':(128,128,128),
-    'silver':(192,192,192),
-    'white':(255,255,255),
-    'cyan':(0,255,255),
-    'teal':(0,128,128),
-    'sky':(0,191,255),
-    'royal':(65,105,225),
-    'blue':(0,0,255),
-    'navy':(0,0,128),
-    'lime':(0,255,0),
-    'green':(0,128,0),
-    'yellow':(255,255,0),
-    'olive':(128,128,0),
-    'orange':(255,140,0),
-    'chocolate':(179,98,0),
-    'magenta':(255,0,255),
-    'purple':(128,0,128),
-    'pink':(255,20,147),
-    'violet':(102,0,51),
-    'red':(255,0,0),
-    'maroon':(128,0,0),
-    'brown':(139,69,19),
-    'earth':(69,27,4)
+    'black':(25, 16, 35), #191023
+    'white':(244,245,239), #f4f5ef
+    'steel':(94, 106, 130), #5e6a82
+    'iron':(160, 171, 177), #a0abb1
+    'silver':(200, 219, 223), #c8dbdf
+    'coral':(248, 199, 164), #f8c7a4
+    'pink':(231, 132, 168), #e784a8
+    'magenta':(161, 70, 170), #a146aa
+    'purple':(71, 67, 148), #474394
+    'berry':(50, 45, 77), #322d4d
+    'cyan':(133, 223, 235), #85dfeb
+    'teal':(51, 156, 163), #339ca3
+    'ocean':(27, 76, 90), #1b4c5a
+    'blue':(114, 173, 238), #72adee
+    'royal':(67, 94, 219), #435edb
+    'lime':(143, 203, 98), #8fcb62
+    'green':(53, 136, 78), #35884e 
+    'yellow':(246, 228, 85), #f6e455
+    'olive':(187, 154, 62), #bb9a3e
+    'orange':(235, 157, 69), #eb9d45
+    'brown':(166, 93, 53), #a65d35
+    'red':(215, 77, 76), #d74d4c
+    'crimson':(150, 47, 44), #962f2c
+    'maroon':(104, 45, 44) #682d2c
 }
 
 #: GAME STATES CODE NUMBERS
@@ -95,11 +103,11 @@ statecontent = {
         'text': [
             [(14*PX,8*PX),"Tetromino400", 'cyan'],
             [(14*PX,10*PX),"Tetromino400", 'blue'],
-            [(14*PX,12*PX),"Tetromino400", 'orange'],
-            [(14*PX,14*PX),"Tetromino400", 'yellow'],
-            [(14*PX,16*PX),"Tetromino400", 'red'],
-            [(14*PX,18*PX),"Tetromino400", 'lime'],
-            [(14*PX,20*PX),"Tetromino400", 'magenta']
+            [(14*PX,12*PX),"Tetromino400", 'magenta'],
+            [(14*PX,14*PX),"Tetromino400", 'lime'],
+            [(14*PX,16*PX),"Tetromino400", 'orange'],
+            [(14*PX,18*PX),"Tetromino400", 'yellow'],
+            [(14*PX,20*PX),"Tetromino400", 'red']
         ]
     },
     'INTRO': {
@@ -174,18 +182,19 @@ statecontent = {
     },
     'SCORE': {
         'text':[
-            [(15*PX,1*PX),"HIGHSCORES",'yellow']
+            [(15*PX,1*PX),"HIGHSCORES",'red'],
+            [(15*PX,2*PX),"**********",'yellow']
         ]
     },
     'CONFIRM': {
         'confirm': [(7*PX,12*PX),"You really want to leave ?", 'red'],
-        'info': [(7*PX,14*PX),"The score will be saved.", 'grey'],
+        'info': [(7*PX,14*PX),"The score will be saved.", 'iron'],
         'continue': [(7*PX,16*PX),"Press space to leave.", 'black'],
         'box': (4*GRID, 10*GRID, 32*GRID, 9*GRID)
     },
     'OVER': {
         'confirm': [(14*PX,12*PX),"GAME OVER !", 'red'],
-        'info': [(4*PX,14*PX),"The score is saved.", 'grey'],
+        'info': [(4*PX,14*PX),"The score is saved.", 'iron'],
         'continue': [(4*PX,16*PX),"Press space to replay or escape.", 'black'],
         'box': (2*GRID, 10*GRID, 36*GRID, 9*GRID)
     }

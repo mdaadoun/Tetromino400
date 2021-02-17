@@ -198,15 +198,11 @@ def reset_arrow():
 #                  #
 ####################
 
-#read_csv(SAVE_FILE)
-#erase_file(SAVE_FILE)
-#data = get_dict_from_csv(SAVE_FILE)
-#write_csv(SAVE_FILE, 'test')
-#send_dict_to_csv(SAVE_FILE, data)
-
-def check_save_file(file_name):
+def check_save_file():
+    file_name = SAVES['file_name']
     options = SAVES['options']
     set_file(file_name, options)
+    return file_name
 
 def save_score():
     """
@@ -214,16 +210,57 @@ def save_score():
     | Set the data of the last game in a tuple
     | Write the data as a tuple in a list of length 1 for the save file
     """
-    file_name = SAVES['file_name']
-    check_save_file(file_name)
+    file_name = check_save_file()
     s = Stats
-    save = [(s.name,str(s.score),str(s.lines),str(s.level),str(s.time))]
+    score = str(s.score)
+    save = [(s.name,score,str(s.lines),str(s.level),str(s.time))]
     write_csv(file_name, save)
+    print(f'The {s.name}\'s score of {score} points is saved.')
+
+def draw_best_score():
+    file_name = check_save_file()
     read = read_csv(file_name)
-    print(read[0])
-    print(read[1])
-    #erase_file(file_name)
-    print('Score saved.')
+    sortedscore = sort_score(read[1])
+    best = sortedscore[0]
+    text = f"{best[0]} has made {best[1]} points !"
+    x,y = 5*GRID,26*GRID
+    write(font,screen,(x,y),text,"yellow")
+
+def draw_highscores():
+    """
+    | Get the score list from the save file, sort it and write it all
+    """
+    file_name = check_save_file()
+    read = read_csv(file_name)
+    x, y = 2*GRID, 4*GRID
+    for index, header in enumerate(read[0],start=1):
+        write(font,screen,(x,y),header,'white')
+        x += 7*GRID
+    sortedscore = sort_score(read[1])
+    x, y = 2*GRID, 6*GRID
+    for index, score in enumerate(sortedscore, start=1):
+        if index == 1:
+            color = 'yellow'
+        elif index == 2:
+            color = 'lime'
+        else:
+            color = 'coral'
+        x = 2*GRID
+        for i,s in enumerate(score, start=1):
+            write(font,screen,(x,y),s,color)
+            x += 7*GRID
+        if index == 8:
+            break
+        else:
+            y += 3*GRID
+
+def sort_score(scorelist):
+    """
+    | Sort the score list by the score integer (index 1) in reverse order
+    """
+    sl = scorelist
+    sl.sort(key=lambda score: int(score[1]), reverse=True)
+    return sl
 
 #####################
 #                   #
@@ -258,7 +295,7 @@ def reset_screen():
     | Clear screen, draw the program 1 px border
     """
     clear(screen)
-    rectangle(screen, (0,0,WIDTH,HEIGHT),'silver', False)
+    rectangle(screen, (0,0,WIDTH,HEIGHT),'iron', False)
 
 def draw_screen():
     """
@@ -323,6 +360,10 @@ def draw_text_from_content():
         text = d[1]
         color = d[2]
         write(font, screen, position, text, color)
+    if game_state == GSC['SCORE']:
+        draw_highscores()
+    if game_state == GSC['INTRO']:
+        draw_best_score()
 
 def draw_global_message():
     """
@@ -337,7 +378,7 @@ def draw_global_message():
     position = datas[0]
     text = datas[1]
     color = datas[2]
-    rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1),'silver')
+    rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1),'iron')
     write(font,screen,position,text,color)
 
 def draw_confirm_box():
