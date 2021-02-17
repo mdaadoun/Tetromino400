@@ -10,18 +10,20 @@
 
 ### Features :
 
-* Incredible Gamplay : Two types of points, the score which grow depending of the level and the speed points which grow until 100 to switch to next level. (Ingame help & instructions.)
-* In full color (Up to 8 color displaying simulatenously on the screen !!)
+* Incredible Gameplay : Two point types, the score which grow depending of the level and the speed points which grow until 100 to switch to next level. (Ingame help & instructions.)
+* In full color (Up to 8 colors displaying simulatenously on the screen !!... But most of the time, it will be 2.)
 * With modern sounds ("Borrowed", so probably copyrighted, see contribute.)
 * Technological innovation : Choose your gaming style : play with the keyboard or the gamepad. (You are the AI.)
 * Multiplayer : The scores are saved in a separate file (save.xml) that you can mail on a disk to your friend to compete with (Mutual trust required.).
+* Max time before game over is 1 hour, 1 minute & 1 seconde. (+ 1 point)
+* Display the 8 best scores on the HIGHSCORES Board.
 
 
 ### Contribute :
 
-I like the idea to have a library of open source games with a eigties feel for the RPI400 like if it was an computer this long forgotten time where amiga, atari or amstrad was magical names.
+I like the idea to have a library of open source games with a eigties feel for the RPI400 machine like if it was a computer coming from this long forgotten time where amiga, atari or amstrad was magical names.
 
-To be a bit more serious, it was more of a learning project where the goal was to complete a full game with Python before to tackle my bigger project PIKO-12, but if you want to add features or improve it, don't hesitate to fork and propose pull requests. 
+To be a bit more serious, it was more of a motivation project where the goal was to complete a full game with Python before to tackle my bigger projects, but if you want to add features or improve it, don't hesitate. 
 
 Also I need help to make it safely FLOSS compatible as possible, I used sounds and a font that I found but I don't believe it has a clear licence, that would help it for a clean distribution and avoid trouble from the big falling brick company. 
 
