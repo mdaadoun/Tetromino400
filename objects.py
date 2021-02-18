@@ -521,24 +521,8 @@ class Stats:
         self.stats['SCORE'] = str(self.score)
         self.stats['SPEED'] = str(self.speed)
         self.stats['LEVEL'] = str(self.level)
-        self.stats['TIME'] = self.set_time_string()
+        self.stats['TIME'] = set_time_string(self.time)
         return self.stats
-
-    def set_time_string(self):
-        """
-        | Format the given secondes
-        """
-        time_text = ['00','00','00']
-        secondes = self.time
-        time_text[2] = str(secondes%60)
-        minutes = secondes//60
-        time_text[1] = str(minutes%60)
-        time_text[0] = str(minutes//60)
-        for i,txt in enumerate(time_text):
-            if len(txt) == 1:
-                time_text[i] = '0'+txt
-        time_text = ':'.join(time_text)
-        return time_text
 
     def draw_grid(self, surface, grid, color):
         for x in range(0, self.width, grid):

@@ -118,3 +118,25 @@ def get_dict_from_csv(file_name):
 def send_dict_to_csv(file_name, data_dict):
     print(file_name, data_dict)
     print("Score is saved in the file", file_name, ".")
+
+###########
+#         # 
+# STRINGS #
+#         # 
+###########
+
+def set_time_string(time):
+    """
+    | Format the given secondes
+    """
+    time_text = ['00','00','00']
+    secondes = time
+    time_text[2] = str(secondes%60)
+    minutes = secondes//60
+    time_text[1] = str(minutes%60)
+    time_text[0] = str(minutes//60)
+    for i,txt in enumerate(time_text):
+        if len(txt) == 1:
+            time_text[i] = '0'+txt
+    time_text = ':'.join(time_text)
+    return time_text
