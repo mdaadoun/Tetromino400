@@ -212,12 +212,16 @@ def save_score():
     """
     file_name = check_save_file()
     s = Stats
+    time = set_time_string(s.time)
     score = str(s.score)
-    save = [(s.name,score,str(s.lines),str(s.level),str(s.time))]
+    save = [(s.name,score,str(s.lines),str(s.level),time)]
     write_csv(file_name, save)
     print(f'The {s.name}\'s score of {score} points is saved.')
 
 def draw_best_score():
+    """
+    | Retrieve the scores from save, sort it and get data from the 1st
+    """
     file_name = check_save_file()
     read = read_csv(file_name)
     sortedscore = sort_score(read[1])
