@@ -13,10 +13,9 @@
 * Incredible Gameplay : Two point types, the score which grow depending of the level and the speed points which grow until 100 to switch to next level. (Ingame help & instructions.)
 * In full color (Up to 8 colors displaying simulatenously on the screen !!... But most of the time, it will be 2.)
 * With modern sounds ("Borrowed", so probably copyrighted, see contribute.)
-* Technological innovation : Choose your gaming style : play with the keyboard or the gamepad. (You are the AI.)
-* Multiplayer : The scores are saved in a separate file (save.xml) that you can mail on a disk to your friend to compete with (Mutual trust required.).
-* Max time before game over is 1 hour, 1 minute & 1 seconde. (+ 1 point)
-* Display the 8 best scores on the HIGHSCORES Board.
+* Technological innovative design : Choose your favorite gaming style : play with the keyboard or with the gamepad. (You are the AI.)
+* Multiplayer : The scores are saved in a separate file (save.csv) that you can send on a disk by mail to your friend to compete with. Display the 8 best scores on the HIGHSCORES Board.
+* The game is over when 100 speed point at last level are reached. Max time before game over is 1 hour, 1 minute & 1 seconde. (+ 1 point)
 
 
 ### Contribute :
