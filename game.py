@@ -51,8 +51,8 @@ def init_game():
 
 def init_screen():
     global screen
-    flags = pygame.FULLSCREEN|pygame.SCALED
-    #flags = pygame.NOFRAME|pygame.SCALED
+    #flags = pygame.FULLSCREEN|pygame.SCALED
+    flags = pygame.NOFRAME|pygame.SCALED
     ####START DEBUG CODE####
     if DEBUG:
         flags = pygame.SCALED
@@ -162,15 +162,15 @@ def get_next_random_tetromino():
     rotation = randrange(0,Tetromino.max_rotations)
     Tetromino.next_rotation = Tetromino.rotation = rotation
     Tetromino.next_position = Tetromino.position = TETROMINO['surface_position']
-    Tetromino.speed = Stats.level * 1.2
+    Tetromino.speed_level = Stats.level
 
 def init_new_game():
     """
+    | reset the Stats data for a new game
     | get a random tetromino from list to set Tetromino object
     | set True all game object update_surface variable to draw them on the screen
     | game over is a flag for end game
     """
-    print("new game")
     global start_ticks
     start_ticks = pygame.time.get_ticks()
     reset_settings()
@@ -181,10 +181,13 @@ def init_new_game():
     Stats.update_surface = True
 
 def reset_settings():
+    """
+    | reset data to 0 and take the Arrow selection (name and level)
+    """
     Stats.level = Arrow.level
     Stats.name = "".join(Arrow.name)
     Stats.score = 0
-    Stats.speed = 0
+    Stats.speed_points = 0
     Stats.lines = 0
 
 def reset_arrow():
@@ -210,8 +213,10 @@ def save_score():
     | Set the data of the last game in a tuple
     | Write the data as a tuple in a list of length 1 for the save file
     """
-    file_name = check_save_file()
     s = Stats
+    if s.score == 0:
+        return
+    file_name = check_save_file()
     time = set_time_string(s.time)
     score = str(s.score)
     save = [(s.name,score,str(s.lines),str(s.level),time)]
@@ -227,7 +232,7 @@ def draw_best_score():
     sortedscore = sort_score(read[1])
     best = sortedscore[0]
     text = f"{best[0]} has made {best[1]} points !"
-    x,y = 5*GRID,26*GRID
+    x,y = 8*GRID,26*GRID
     write(font,screen,(x,y),text,"yellow")
 
 def draw_highscores():
@@ -332,6 +337,7 @@ def draw_objects():
             blit(screen, board_surface, Board.surface_position)
             updated = True
         if Stats.update_surface == True:
+            Stats.check_level()
             Stats.draw(stats_surface, GRID, font, DEBUG)
             blit(screen, stats_surface, Stats.surface_position)
             updated = True
@@ -413,6 +419,7 @@ def game_over():
     global game_state, update_screen
     game_state = GSC['OVER']
     Tetromino.game_over = False
+    Stats.game_over = False
     update_screen = True
 
 def goto_menu():
@@ -572,10 +579,10 @@ def game_loop():
     """
     | At each loop
     | 1. Check events input and change datas if game is playing
-    | 2. If the tetromino reach bottom, it's done, if it's reach up it's over:
-    |    1. If done, get next tetromino.
-    |    2. If over, score saved, game over.
-    | 3. Update clock if game playing, keep tetromino moving down and update timer
+    | 2. Check game over from the Tetromino or from the Stats:
+    |    1. If over, score saved, game over.
+    |    2. If done, get next tetromino.
+    | 3. Update clock, keep tetromino moving down and update timer
     | 4. Update screen & surfaces drawing if related flag raised True
     | 5. Keep the FPS clock at 60
     """
@@ -588,8 +595,8 @@ def game_loop():
     #####END DEBUG CODE#####
     while game_running:
         game_running = check_inputs() #1
-        if game_state == GSC['PLAY']:
-            if Tetromino.game_over == True: #2.1
+        if game_state == GSC['PLAY']: #2
+            if Tetromino.game_over == True or Stats.game_over == True: #2.1
                 save_score()
                 game_over()
             elif Tetromino.done: #2.2
