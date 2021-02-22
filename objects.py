@@ -26,7 +26,7 @@ class Tetromino:
         self.position = position
         self.volume_shape = 16
         self.update_surface = False
-        self.speed = 9
+        self.speed_level = 0
         self.timer_limit = 30
         self.next_slide = 30
         self.move_aside = False
@@ -110,12 +110,12 @@ class Tetromino:
 
     def slide(self, timer):
         """
-        | Use frames per seconds and speed to keep down
+        | Use frames per seconds and speed level to keep down
         | when using move 1 is the key for down
         | after a check return the nb of lines with self.move or 0
         """
         if self.done is not True:
-            self.next_slide = self.next_slide - self.speed
+            self.next_slide = self.next_slide - self.speed_level
             if self.next_slide <= 0:
                 self.next_slide = self.timer_limit
                 return self.move(1)
@@ -297,9 +297,9 @@ class Tetromino:
                 t2_coords.append((x2,y2))
             x1 += grid
             x2 += grid
-            #print(shape[c],end="")
+            print(shape[c],end="")
             if (c+1)%4==0:
-                #print("")
+                print("")
                 x1 = tx1_start
                 x2 = tx2_start
                 y1 += grid
@@ -461,13 +461,14 @@ class Stats:
         self.stats_titles = data['stats']
         self.stats = {}
         self.score = 0
-        self.speed = 0
+        self.speed_points = 0
         self.level = 1
         self.lines = 0
         self.time = 0
         self.name_position = data['name_position']
         self.suffix = data['name_suffix']
         self.name = 'AAA'
+        self.game_over = False
 
     def draw(self, surface, grid, font, debug=False):
         """
@@ -519,7 +520,7 @@ class Stats:
         self.stats['NEXT'] = None
         self.stats['LINES'] = str(self.lines)
         self.stats['SCORE'] = str(self.score)
-        self.stats['SPEED'] = str(self.speed)
+        self.stats['SPEED'] = str(self.speed_points) + "/100"
         self.stats['LEVEL'] = str(self.level)
         self.stats['TIME'] = set_time_string(self.time)
         return self.stats
@@ -531,8 +532,13 @@ class Stats:
                 line(surface,(x,0), (x, self.height), color)
 
     def update_time(self,timer):
+        """
+        | Get the secondes from game ticks and up
+        """
         t = math.ceil(timer/1000)
+        t = t-1
         if t  != self.time:
+            self.check_time(t)
             self.time = t
             self.update_surface = True
 
@@ -543,16 +549,39 @@ class Stats:
         self.lines += lines
         if lines == 1:
             self.score += 1 * self.level
-            self.speed += 10
+            self.speed_points += 10
         if lines == 2:
-            self.score += 2 * self.level
-            self.speed += 5
-        if lines == 3:
             self.score += 3 * self.level
-            self.speed += 2
+            self.speed_points += 5
+        if lines == 3:
+            self.score += 5 * self.level
+            self.speed_points += 3
         if lines == 4:
-            self.score += 4 * self.level
-            self.speed += 1
+            self.score += 10 * self.level
+            self.speed_points += 1
+
+    def check_level(self):
+        """
+        | Check if the level reach 100, if yes
+        | Check if the level is not the last (level 9 + >100 speed points)
+        | jump to next level, set speed points with remaining points
+        """
+        sp = self.speed_points
+        if sp//100 >= 1:
+            if self.level == 9 and sp >= 100:
+                self.game_over = True
+                self.speed_points = 100
+            else:
+                self.level += 1
+                r = sp%100
+                self.speed_points = r
+
+    def check_time(self,secondes):
+        """
+        | check if time is not 1hour, 1min and 1sec else, game over
+        """
+        if secondes == 3661:
+            self.game_over = True
 
 class Arrow:
     def __init__(self, data):
