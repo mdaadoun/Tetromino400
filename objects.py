@@ -297,7 +297,7 @@ class Tetromino:
                 t2_coords.append((x2,y2))
             x1 += grid
             x2 += grid
-            print(shape[c],end="")
+            print(shape1[c],end="")
             if (c+1)%4==0:
                 print("")
                 x1 = tx1_start
@@ -305,36 +305,36 @@ class Tetromino:
                 y1 += grid
                 y2 += grid
             c+=1
-        #print("\n")
-        #print(t1_coords)
-        #print(t2_coords)
+        print("\n")
+       # print(t1_coords)
+       # print(t2_coords)
         #draw the pattern
-        #print("\n")
+        print("\n")
         c = 0
         x,y = px_start,py_start
         new_pattern = []
         while c < squares:
             if ((x,y) in t2_coords) and pattern[c] == 1:
-                #print("x",end="")
+                print("x",end="")
                 collision = True
             if (x,y) in t1_coords:
-                #print(1,end="")
+                print(1,end="")
                 new_pattern.append(1)
             else:
                 new_pattern.append(pattern[c])
-                #print(pattern[c],end="")
+                print(pattern[c],end="")
             x += grid
             if (c+1)%columns==0:
-                #print("")
+                print("")
                 x = px_start
                 y += grid
             c+=1
-        #print("\n")
+        print("\n")
         #draw the pattern and tetrominos squares positions
         #print(new_pattern)
-        #print("Tetromino next position:",self.next_position)
-        #print("pattern lines, columns, square, x, y")
-        #print(lines,columns, squares, px_start, py_start)
+        print("Tetromino next position:",self.next_position)
+        print("pattern lines, columns, square, x, y")
+        print(lines,columns, squares, px_start, py_start)
         if collision == True:
             return (True,tuple(new_pattern))
         else:
