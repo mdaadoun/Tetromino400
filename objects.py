@@ -28,7 +28,7 @@ class Tetromino:
         self.update_surface = False
         self.speed_level = 0
         self.timer_limit = 30
-        self.next_slide = 30
+        self.next_slide_timer = 30
         self.move_aside = False
         self.update = False
         self.done = False
@@ -102,7 +102,6 @@ class Tetromino:
                 if pixel%4 == 3:
                     y += 1
                     x = 0
-        #self.update_surface = False
 
         if debug == True:
             pass
@@ -115,9 +114,9 @@ class Tetromino:
         | after a check return the nb of lines with self.move or 0
         """
         if self.done is not True:
-            self.next_slide = self.next_slide - self.speed_level
-            if self.next_slide <= 0:
-                self.next_slide = self.timer_limit
+            self.next_slide_timer = self.next_slide_timer - self.speed_level
+            if self.next_slide_timer <= 0:
+                self.next_slide_timer = self.timer_limit
                 return self.move(1)
 
     def move(self, direction):
@@ -188,8 +187,10 @@ class Tetromino:
         lt = Board.surface_position[0]
         lr = Board.surface_position[0] + Board.width
         side_collision = self.check_side_collision(lt, lr)
-        board_collision = self.check_board_collision(Board)
-        if board_collision[0] == True:
+        check_board_collision = self.check_board_collision(Board)
+        board_collision = check_board_collision[0]
+        new_pattern = check_board_collision[1]
+        if board_collision == True:
             self.update = False
             self.done = True
             if self.position[1] <= 32:
@@ -199,7 +200,7 @@ class Tetromino:
         else:
             self.update = True
         self.update_surface = False
-        return board_collision[1]
+        return new_pattern
 
     def get_side_limits(self):
         """
@@ -247,10 +248,58 @@ class Tetromino:
                     c = False
         return c
 
+    def get_pattern_data(self,Board):
+        """
+        | Build a dictionnary with the pattern data necessary for checking
+        """
+        pattern = {}
+        pattern['shape'] = Board.pattern
+        pattern_size = Board.pattern_size
+        columns,lines = pattern_size[0],pattern_size[1]+1
+        pattern['squares_number'] = lines*columns
+        pattern_surface_position = Board.surface_position
+        pattern_position = Board.pattern_position
+        pattern['position_x'] = pattern_surface_position[0]+pattern_position[0]
+        pattern['position_y'] = pattern_surface_position[1]+pattern_position[1]
+        return pattern
+
+    def get_tetrominos_data(self):
+        """
+        | Build an dictionnary of two dictionnaries with
+        | the tetromino data necessary for checking
+        """
+        tetromino = {'current':{},'next':{}}
+        tetromino['current']['position_x'] = self.position[0]
+        tetromino['current']['position_y'] = self.position[1]
+        tetromino['next']['position_x'] = self.next_position[0]
+        tetromino['next']['position_y'] = self.next_position[1]
+        index1 = self.next_rotation*self.volume_shape
+        index2 = self.rotation*self.volume_shape
+        tetromino['next']['shape'] = self.shape[index1:index1+self.volume_shape]
+        tetromino['current']['shape'] = self.shape[index2:index2+self.volume_shape]
+        print(tetromino)
+        return tetromino
+
+    def get_tetromino_coordinates(self, tetromino):
+        """
+        | Get the coordinates of all the occupied square
+        | of the given tetromino.
+        """
+        print(tetromino)
+        x = tetromino['position_x']
+        y = tetromino['position_y']
+        print(tetromino,x,y)
+        return [x,y]
+
     def check_board_collision(self,Board):
         """
+        | The collision flag will tell if the tetromino collide with pattern
+        | We work with a square grid of 8 pixel.
         | First we gather all the datas needed to check
-        | We work with square grid of 8 pixel.
+        |    get_pattern_datas for the pattern
+        |    get_tetrominos_datas for the tetrominos
+
+
         | For the pattern :
         |   The pattern tupple, with 0 for empty square, 1 for occuped
         |   The pattern size that we store as colums and lines (in squares not pixels)
@@ -270,71 +319,48 @@ class Tetromino:
         """
         collision = False
         grid = 8
-        pattern = Board.pattern
-        size = Board.pattern_size
-        surface_position = Board.surface_position
-        position = Board.pattern_position
-        px_start = surface_position[0]+position[0]
-        py_start = surface_position[1]+position[1]
-        tx1_start = self.position[0]
-        ty1_start = self.position[1]
-        tx2_start = self.next_position[0]
-        ty2_start = self.next_position[1]
-        columns,lines = size[0],size[1]+1
-        squares = lines*columns
-        index1 = self.next_rotation*self.volume_shape
-        index2 = self.rotation*self.volume_shape
-        shape1 = self.shape[index1:index1+self.volume_shape]
-        shape2 = self.shape[index2:index2+self.volume_shape]
-        c = 0
-        x1,y1,x2,y2 = tx1_start,ty1_start,tx2_start,ty2_start
-        t1_coords = []
-        t2_coords = []
-        while c < len(shape1):
-            if shape1[c] == 1:
-                t1_coords.append((x1,y1))
-            if shape2[c] == 1:
-                t2_coords.append((x2,y2))
-            x1 += grid
-            x2 += grid
-            print(shape1[c],end="")
-            if (c+1)%4==0:
-                print("")
-                x1 = tx1_start
-                x2 = tx2_start
-                y1 += grid
-                y2 += grid
-            c+=1
-        print("\n")
-       # print(t1_coords)
-       # print(t2_coords)
-        #draw the pattern
-        print("\n")
-        c = 0
-        x,y = px_start,py_start
+        pattern = self.get_pattern_data(Board)
+        tetrominos = self.get_tetrominos_data()
+        print(tetrominos)
+        coordinates = [[],[]]
+        for i, t in enumerate(tetrominos):
+            print(i)
+            coordinates[i] = self.get_tetromino_coordinates(tetrominos[t])
+
+        print(coordinates)
+
+        #c = 0
+        #x1,y1,x2,y2 = tx1_start,ty1_start,tx2_start,ty2_start
+        #t1_coords = []
+        #t2_coords = []
+        #while c < len(shape1):
+        #    if shape1[c] == 1:
+        #        t1_coords.append((x1,y1))
+        #    if shape2[c] == 1:
+        #        t2_coords.append((x2,y2))
+        #    x1 += grid
+        #    x2 += grid
+        #    if (c+1)%4==0:
+        #        x1 = tx1_start
+        #        x2 = tx2_start
+        #        y1 += grid
+        #        y2 += grid
+        #    c+=1
+        #c = 0
+        #x,y = px_start,py_start
         new_pattern = []
-        while c < squares:
-            if ((x,y) in t2_coords) and pattern[c] == 1:
-                print("x",end="")
-                collision = True
-            if (x,y) in t1_coords:
-                print(1,end="")
-                new_pattern.append(1)
-            else:
-                new_pattern.append(pattern[c])
-                print(pattern[c],end="")
-            x += grid
-            if (c+1)%columns==0:
-                print("")
-                x = px_start
-                y += grid
-            c+=1
-        print("\n")
-        #draw the pattern and tetrominos squares positions
-        #print(new_pattern)
-        print("Tetromino next position:",self.next_position)
-        print("pattern lines, columns, square, x, y")
-        print(lines,columns, squares, px_start, py_start)
+        #while c < squares:
+        #    if ((x,y) in t2_coords) and pattern[c] == 1:
+        #        collision = True
+        #    if (x,y) in t1_coords:
+        #        new_pattern.append(1)
+        #    else:
+        #        new_pattern.append(pattern[c])
+        #    x += grid
+        #    if (c+1)%columns==0:
+        #        x = px_start
+        #        y += grid
+        #    c+=1
         if collision == True:
             return (True,tuple(new_pattern))
         else:
