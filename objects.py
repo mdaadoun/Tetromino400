@@ -33,6 +33,7 @@ class Tetromino:
         self.update = False
         self.done = False
         self.game_over = False
+        self.last_input = None
 
         if debug == True:
             pass
@@ -132,8 +133,9 @@ class Tetromino:
         | 3 : RIGHT = GO RIGHT
         | 4 : SPACE & RETURN = JUMP DOWN
         | * the flag move_aside is to give priority moving aside over going down
+        | The last input is a flag when checking collision and keep input in order
         """
-        if self.done is not True:
+        if self.done is not True and self.last_input == None:
             p = self.position
             x,y = p[0],p[1]
             grid = 8
@@ -147,19 +149,19 @@ class Tetromino:
                 self.next_position = (x+grid, y)
             if direction == 4 and not self.move_aside:
                 print("jump")
+            self.last_input = direction
             self.update_surface = True
 
     def rotate(self):
         """
         | check if next rotation is possible
         | if yes :
-        | * save previous rotation
-        | * get the next rotation
-        | * play rotating sound
-        | * else play the blocked sound
+        | * get the next rotation to check
+        | The last input is a flag when checking collision and keep input in order
         """
-        if self.done is not True:
+        if self.done is not True and self.last_input == None:
             self.next_rotation = (self.rotation + 1)%self.max_rotations
+            self.last_input = 0
             self.update_surface = True
 
     def set_update(self):
@@ -187,18 +189,19 @@ class Tetromino:
         lt = Board.surface_position[0]
         lr = Board.surface_position[0] + Board.width
         side_collision = self.check_side_collision(lt, lr)
-        check_board_collision = self.check_board_collision(Board)
-        board_collision = check_board_collision[0]
-        new_pattern = check_board_collision[1]
-        if board_collision == True:
+        results = self.check_pattern_collision(Board)
+        new_pattern = results[1]
+        if side_collision == True or results[0] == True:
+            self.update = False
+        elif new_pattern is not None:
             self.update = False
             self.done = True
             if self.position[1] <= 32:
                 self.game_over = True
-        elif side_collision == True:
-            self.update = False
+            print('dont update!!')
         else:
             self.update = True
+        self.last_input = None
         self.update_surface = False
         return new_pattern
 
@@ -251,11 +254,17 @@ class Tetromino:
     def get_pattern_data(self,Board):
         """
         | Build a dictionnary with the pattern data necessary for checking
+        | Shape : The pattern tupple, with 0 for empty square, 1 for occuped
+        | Size :  The pattern size that we store (in squares not pixels)
+        | Columns and lines is equal to sizes length and height
+        | Squares numbers :  The total of squares in the pattern (lines*columns)
+        | Lines :  The 1 added to lines is for representing the pattern floor
+        | The top/left coordinates that we store as position x & y
         """
         pattern = {}
         pattern['shape'] = Board.pattern
-        pattern_size = Board.pattern_size
-        columns,lines = pattern_size[0],pattern_size[1]+1
+        pattern['size'] = ps  = Board.pattern_size
+        columns, lines = ps[0], ps[1]+1
         pattern['squares_number'] = lines*columns
         pattern_surface_position = Board.surface_position
         pattern_position = Board.pattern_position
@@ -266,7 +275,9 @@ class Tetromino:
     def get_tetrominos_data(self):
         """
         | Build an dictionnary of two dictionnaries with
-        | the tetromino data necessary for checking
+        | the current & next tetrominos data necessary for checking
+        | We store the positions top/left of the surface as x & y
+        | We store the correct shape using rotation index as an offset
         """
         tetromino = {'current':{},'next':{}}
         tetromino['current']['position_x'] = self.position[0]
@@ -277,94 +288,104 @@ class Tetromino:
         index2 = self.rotation*self.volume_shape
         tetromino['next']['shape'] = self.shape[index1:index1+self.volume_shape]
         tetromino['current']['shape'] = self.shape[index2:index2+self.volume_shape]
-        print(tetromino)
         return tetromino
 
-    def get_tetromino_coordinates(self, tetromino):
+    def get_tetromino_squares_coordinates(self, tetromino):
         """
-        | Get the coordinates of all the occupied square
-        | of the given tetromino.
+        | Get the coordinates of all the occupied squares
+        | of a  given tetromino.
         """
-        print(tetromino)
-        x = tetromino['position_x']
+        grid = 8
+        x = xstart = tetromino['position_x']
         y = tetromino['position_y']
-        print(tetromino,x,y)
-        return [x,y]
+        squares_coordinates = []
+        for i, square in enumerate(tetromino['shape'], 1):
+            if square == 1:
+                squares_coordinates.append((x,y))
+            x += grid
+            if i % 4 == 0:
+                x = xstart
+                y += grid
+        return squares_coordinates
 
-    def check_board_collision(self,Board):
+    def get_squares_collision(self, pattern, next_positions):
         """
-        | The collision flag will tell if the tetromino collide with pattern
-        | We work with a square grid of 8 pixel.
+        | Check if square of tetromino and pattern collide
+        |    if collide to the bottom, input(1,4) return 1
+        |    if collide to the side or in rotation, input(0,2,3) return 2
+        |    else return None
+        """
+        grid = 8
+        columns = pattern['size'][0]
+        x = xstart = pattern['position_x']
+        y = pattern['position_y']
+        collide = None
+        for i in range(pattern['squares_number']):
+            if pattern['shape'][i] == 1 and (x,y) in next_positions:
+                if self.last_input in [1, 4]:
+                    collide = 1
+                else:
+                    collide = 2
+            x += grid
+            if (i+1)%columns == 0:
+                x = xstart
+                y += grid
+        return collide
+
+    def build_new_pattern(self, pattern, current_positions):
+        """
+        | Build a new pattern by adding the current tetromino
+        | To the current pattern.
+        """
+        grid = 8
+        columns = pattern['size'][0]
+        x = xstart = pattern['position_x']
+        y = pattern['position_y']
+        new_pattern = []
+        for i in range(pattern['squares_number']):
+            if (x,y) in current_positions:
+                new_pattern.append(1)
+            else:
+                new_pattern.append(pattern['shape'][i])
+            x += grid
+            if (i+1)%columns == 0:
+                x = xstart
+                y += grid
+        return tuple(new_pattern)
+
+    def debug_draw_tetrominos_and_pattern(self, pattern, next_positions):
+        print("debug")
+
+    def check_pattern_collision(self,Board):
+        """
         | First we gather all the datas needed to check
         |    get_pattern_datas for the pattern
         |    get_tetrominos_datas for the tetrominos
 
-
-        | For the pattern :
-        |   The pattern tupple, with 0 for empty square, 1 for occuped
-        |   The pattern size that we store as colums and lines (in squares not pixels)
-        |     The 1 added to lines is for representing the pattern floor
-        |   It's top/left coordinates that we store as px_start & py_start
-        |   The total of squares in the pattern (lines*columns)
-        | For the tetromino we want to test :
-        |   We store the correct shape using index in a variable shape
-        | With those data, we build one lists :
-        |   All the coordinates of the Tetromino occupied square
-        | First we check if there is no square out of the pattern bottom limit
+        |----- OLD COMMENTS TO REVIEW
+              | First we check if there is no square out of the pattern bottom limit
         | Then we compare those two lists with each other :
         |   If there is an identical pair, there is collision, return True
         |     The board get the coordinates of the Tetromino to update the pattern
         |     The game get the next Tetromino
         |   Else, we return False and keep going.
         """
-        collision = False
-        grid = 8
         pattern = self.get_pattern_data(Board)
         tetrominos = self.get_tetrominos_data()
-        print(tetrominos)
-        coordinates = [[],[]]
+        coordinates = []
         for i, t in enumerate(tetrominos):
-            print(i)
-            coordinates[i] = self.get_tetromino_coordinates(tetrominos[t])
-
-        print(coordinates)
-
-        #c = 0
-        #x1,y1,x2,y2 = tx1_start,ty1_start,tx2_start,ty2_start
-        #t1_coords = []
-        #t2_coords = []
-        #while c < len(shape1):
-        #    if shape1[c] == 1:
-        #        t1_coords.append((x1,y1))
-        #    if shape2[c] == 1:
-        #        t2_coords.append((x2,y2))
-        #    x1 += grid
-        #    x2 += grid
-        #    if (c+1)%4==0:
-        #        x1 = tx1_start
-        #        x2 = tx2_start
-        #        y1 += grid
-        #        y2 += grid
-        #    c+=1
-        #c = 0
-        #x,y = px_start,py_start
-        new_pattern = []
-        #while c < squares:
-        #    if ((x,y) in t2_coords) and pattern[c] == 1:
-        #        collision = True
-        #    if (x,y) in t1_coords:
-        #        new_pattern.append(1)
-        #    else:
-        #        new_pattern.append(pattern[c])
-        #    x += grid
-        #    if (c+1)%columns==0:
-        #        x = px_start
-        #        y += grid
-        #    c+=1
-        if collision == True:
-            return (True,tuple(new_pattern))
+            coordinates.append(self.get_tetromino_squares_coordinates(tetrominos[t]))
+        current_coordinates = coordinates[0]
+        next_coordinates = coordinates[1]
+        collision = self.get_squares_collision(pattern, next_coordinates)
+        #self.debug_draw_tetrominos_and_pattern(pattern, next_coordinates)
+        if collision == 1:
+            new_pattern = self.build_new_pattern(pattern, current_coordinates)
+            return [False, new_pattern]
+        elif collision == 2:
+            return [True, None]
         else:
-            return (False,None)
+            return [False, None]
 
 class Board:
     def __init__(self, data):
