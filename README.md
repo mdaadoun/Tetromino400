@@ -16,7 +16,7 @@
 * Technological innovative design : Choose your favorite gaming style : play with the keyboard or with the gamepad. (You are the AI.)
 * Multiplayer : The scores are saved in a separate file (save.csv) that you can send on a disk by mail to your friend to compete with. Display the 8 best scores on the HIGHSCORES Board.
 * The game is over when 100 speed point at last level are reached. Max time before game over is 1 hour, 1 minute & 1 seconde. (+ 1 point)
-* Use ALT+ENTER to swith into fullscreen mode. (I didn't set fullscreen by default, there is some trouble right now around fullscreen mode on Ubuntu based linux distribution, maybe you will need to compile pygame on those platform to get it working.)
+* Use "F" to swith into fullscreen mode. (I didn't set fullscreen by default, there is some trouble right now around fullscreen mode on Ubuntu based linux distribution, maybe you will need to compile pygame on those platform to get it working.)
 
 
 ### Contribute :
