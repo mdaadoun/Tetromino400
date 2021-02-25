@@ -299,12 +299,12 @@ def game_drawing():
             updated_frames +=1
         #####END DEBUG CODE#####
 
-def reset_screen():
+def reset_screen(color):
     """
     | Clear screen, draw the program 1 px border
     """
     clear(screen)
-    rectangle(screen, (0,0,WIDTH,HEIGHT),'iron', False)
+    rectangle(screen, (0,0,WIDTH,HEIGHT), color, False)
 
 def draw_screen():
     """
@@ -314,12 +314,12 @@ def draw_screen():
     | For others game states, clear the screen then draw the text content
     """
     if game_state == GSC['PLAY']:
-        reset_screen()
+        reset_screen('iron')
         write(font,screen,Stats.name_position,Stats.name+Stats.suffix,'white')
     elif game_state == GSC['CONFIRM'] or game_state == GSC['OVER']:
         draw_confirm_box()
     else:
-        reset_screen()
+        reset_screen('white')
         draw_text_from_content()
         draw_global_message()
 
@@ -327,8 +327,12 @@ def draw_objects():
     """
     | Draw the correct surface when flag of related object is up
     | Is the Game State is a playing state :
-    |     Draw game board, game stats+next tetromino, game current tetromino
-    | For Arrow object, clear the surface before drawing
+    |     Draw game board
+    |     Check the speed points and draw game stats
+    |     Check score game and draw tetromino new position
+    | For Arrow object:
+    |     Clear the surface before drawing
+    |     Draw the arrow to new position
     """
     updated = False
     if game_state == GSC['PLAY']:
@@ -388,7 +392,7 @@ def draw_global_message():
     position = datas[0]
     text = datas[1]
     color = datas[2]
-    rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1),'iron')
+    rectangle(screen,(0,29*GRID-1,WIDTH,GRID+1),'white')
     write(font,screen,position,text,color)
 
 def draw_confirm_box():
