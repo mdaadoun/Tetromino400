@@ -8,11 +8,11 @@ saves = {
     'options':('name','score','lines','level','time'),
     'file_start':
                 [
-                 ('VXD','101','10','4','00:10:00'),
-                 ('VXD','2','0','1','00:08:11'),
-                 ('VXD','9','0','8','00:00:21'),
-                 ('VXD','20','0','3','00:05:41'),
-                 ('VXD','1','0','1','01:01:01')
+                 ('EGO','101','10','4','00:10:00'),
+                 ('EGO','7','1','7','00:00:42'),
+                 ('EGO','9','0','8','00:00:21'),
+                 ('EGO','20','0','3','00:05:41'),
+                 ('EGO','1','0','1','01:01:01')
                 ]
 }
 
@@ -113,14 +113,14 @@ statecontent = {
     'INTRO': {
         'text':[
             [(4*PX,2*PX),"WIN POINTS, GET THE BEST SCORE!", 'yellow'],
-            [(2*PX,5*PX),"1 line  =  1xlvl pts  & 10 speed pts", 'white'],
-            [(2*PX,7*PX),"2 lines =  2xlvl pts  &  5 speed pts", 'white'],
-            [(2*PX,9*PX),"3 lines =  3xlvl pts  &  2 speed pts", 'white'],
-            [(2*PX,11*PX),"4 lines =  4xlvl pts  &  1 speed pts", 'white'],
-            [(2*PX,15*PX),"Every 100 speed points :", 'cyan'],
-            [(3*PX,17*PX),"Jump 1 level, the speed increase !", 'cyan'],
-            [(8*PX,19*PX),"There is 9 speed levels.", 'cyan'],
-            [(14*PX,21*PX),"Playtime max is 1 hour.", 'cyan'],
+            [(2*PX,5*PX),"1 line  =  1xlvl pts  &  9 speed pts", 'purple'],
+            [(2*PX,7*PX),"2 lines =  3xlvl pts  &  5 speed pts", 'magenta'],
+            [(2*PX,9*PX),"3 lines =  5xlvl pts  &  3 speed pts", 'pink'],
+            [(2*PX,11*PX),"4 lines =  9xlvl pts  &  1 speed pts", 'coral'],
+            [(2*PX,15*PX),"Every 100 speed points :", 'red'],
+            [(3*PX,17*PX),"Jump 1 level, the speed increase !", 'silver'],
+            [(8*PX,19*PX),"There is 9 speed levels.", 'silver'],
+            [(14*PX,21*PX),"Playtime max is 1 hour.", 'silver'],
             [(2*PX,24*PX),"Current best Score :", 'white'],
         ]
     },
