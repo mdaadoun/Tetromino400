@@ -34,6 +34,7 @@ class Tetromino:
         self.done = False
         self.game_over = False
         self.last_input = None
+        self.jumping = False
 
         if debug == True:
             pass
@@ -116,7 +117,7 @@ class Tetromino:
         """
         if self.done is not True:
             self.next_slide_timer = self.next_slide_timer - self.speed_level
-            if self.next_slide_timer <= 0:
+            if self.next_slide_timer <= 0 or self.jumping == True:
                 self.next_slide_timer = self.timer_limit
                 return self.move(1)
 
@@ -147,8 +148,6 @@ class Tetromino:
             if direction == 3:
                 self.move_aside = True
                 self.next_position = (x+grid, y)
-            if direction == 4 and not self.move_aside:
-                print("jump")
             self.last_input = direction
             self.update_surface = True
 
@@ -163,6 +162,13 @@ class Tetromino:
             self.next_rotation = (self.rotation + 1)%self.max_rotations
             self.last_input = 0
             self.update_surface = True
+
+    def jump(self):
+        """
+        | go down until collision, update the board
+        """
+        if self.done is not True and self.last_input == None:
+            self.jumping = True
 
     def set_update(self):
         """
@@ -196,9 +202,9 @@ class Tetromino:
         elif new_pattern is not None:
             self.update = False
             self.done = True
+            self.jumping = False
             if self.position[1] <= 32:
                 self.game_over = True
-            print('dont update!!')
         else:
             self.update = True
         self.last_input = None
