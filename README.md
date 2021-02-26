@@ -58,3 +58,13 @@ In the root directory :
 python game.py
 ```
 * **python3** on linux, if python is the version 2
+
+
+### Todo :
+
+* I started working on the side on an algorithm that I called "island shifting"
+to add to the game. The idea that sometimes when you accomplish there line a floating
+block could form. The algorithm would detect that and make this block fall to 
+fill the empty spaces under it. 
+I moved on something else now but I still could add it in the
+future to improve the gameplay.
