@@ -154,10 +154,22 @@ statecontent = {
     },
     'MENU': {
         'text':[
-            [(12*PX,10*PX),"Start a New Game",'lime'],
-            [(12*PX,12*PX),"View Instructions",'white'],
-            [(12*PX,14*PX),"View Highscores",'white'],
-            [(12*PX,16*PX),"Exit Game",'red']
+            [(14*PX,6*PX),"T",'lime'],
+            [(14*PX,6*PX)," e",'pink'],
+            [(14*PX,6*PX),"  t",'magenta'],
+            [(14*PX,6*PX),"   r",'purple'],
+            [(14*PX,6*PX),"    o",'yellow'],
+            [(14*PX,6*PX),"     m",'orange'],
+            [(14*PX,6*PX),"      i",'red'],
+            [(14*PX,6*PX),"       n",'crimson'],
+            [(14*PX,6*PX),"        o",'royal'],
+            [(14*PX,6*PX),"         4",'white'],
+            [(14*PX,6*PX),"          0",'olive'],
+            [(14*PX,6*PX),"           0",'green'],
+            [(12*PX,12*PX),"Start a New Game",'lime'],
+            [(12*PX,14*PX),"View Instructions",'white'],
+            [(12*PX,16*PX),"View Highscores",'white'],
+            [(12*PX,18*PX),"Exit Game",'red']
         ],
         'arrowshape':[
             (0,0,0,0,1,0,0,0),
@@ -170,10 +182,10 @@ statecontent = {
             (0,0,0,0,0,0,0,0)
         ],
         'arrowselect':[
-            [(10*PX,10*PX),'lime',GSC['NEW']],
-            [(10*PX,12*PX),'white',GSC['INTRO']],
-            [(10*PX,14*PX),'white',GSC['SCORE']],
-            [(10*PX,16*PX),'red',GSC['EXIT']]
+            [(10*PX,12*PX),'lime',GSC['NEW']],
+            [(10*PX,14*PX),'white',GSC['INTRO']],
+            [(10*PX,16*PX),'white',GSC['SCORE']],
+            [(10*PX,18*PX),'red',GSC['EXIT']]
         ]
     },
     'NEW': {
