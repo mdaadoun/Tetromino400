@@ -460,6 +460,9 @@ def validation_key():
         game_state = GSC['INTRO']
         update_screen = True
     elif game_state == GSC['INTRO']:
+        game_state = GSC['INPUTS']
+        update_screen = True
+    elif game_state == GSC['INPUTS']:
         goto_menu()
     elif game_state == GSC['SCORE']:
         goto_menu()
@@ -561,11 +564,30 @@ def get_gamepad_input():
     | Check the used input of the gamepad
     """
     gp = gamepad[0]
+    #axes = gp.get_numaxes()
+    #print("Number of axes: {}".format(axes))
+
+    #buttons = gp.get_numbuttons()
+    #print("Number of buttons: {}".format(buttons))
+
     ax_up_dn = gp.get_axis(1)
     ax_lf_rg = gp.get_axis(0)
     btnA = gp.get_button(0)
     btnB = gp.get_button(1)
-    if ax_up_dn < 0:
+    btnUnk = gp.get_button(2)
+    btnX = gp.get_button(3)
+    btnY = gp.get_button(4)
+    btnRe = gp.get_button(10)
+    btnSt = gp.get_button(11)
+
+    #for i in range(axes):
+    #    axis = gp.get_axis(i)
+    #    print("Axis {} value: {:>6.3f}".format(i, axis))
+    #for i in range(buttons):
+    #    button = gp.get_button(i)
+    #    print("Button {:>2} value: {}".format(i, button))
+
+    if ax_up_dn < 0 or btnA == True or btnY == True:
         move_key(0)
     elif ax_up_dn > 0:
         move_key(1)
@@ -573,9 +595,9 @@ def get_gamepad_input():
         move_key(3)
     elif ax_lf_rg < 0:
         move_key(2)
-    if btnB == True:
+    if btnSt == True or btnUnk == True or btnB == True:
         validation_key()
-    if btnA == True:
+    if btnRe == True or btnX == True:
         escape_key()
 
 #############
