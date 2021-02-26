@@ -323,6 +323,13 @@ def draw_screen():
         draw_text_from_content()
         draw_global_message()
 
+def draw_tetromino():
+    Tetromino.draw(tetromino_surface, GRID, DEBUG, True)
+    blit(screen, tetromino_surface, Tetromino.position)
+    Tetromino.set_update()
+    Tetromino.draw(tetromino_surface, GRID, DEBUG)
+    blit(screen, tetromino_surface, Tetromino.position)
+
 def draw_objects():
     """
     | Draw the correct surface when flag of related object is up
@@ -347,11 +354,7 @@ def draw_objects():
             updated = True
         if Tetromino.update_surface == True:
             Stats.update_score(Board.update_pattern(Tetromino.check_update(Board)))
-            Tetromino.draw(tetromino_surface, GRID, DEBUG, True)
-            blit(screen, tetromino_surface, Tetromino.position)
-            Tetromino.set_update()
-            Tetromino.draw(tetromino_surface, GRID, DEBUG)
-            blit(screen, tetromino_surface, Tetromino.position)
+            draw_tetromino()
             updated = True
     if Arrow.update_surface == True:
         clear(arrow_surface)
@@ -517,6 +520,8 @@ def move_key(key):
     elif game_state == GSC['PLAY']:
         if key == 0:
             Tetromino.rotate()
+        elif key == 4:
+            Tetromino.jump()
         else:
             Tetromino.move(key)
 
