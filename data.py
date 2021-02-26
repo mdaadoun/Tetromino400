@@ -8,8 +8,8 @@ saves = {
     'options':('name','score','lines','level','time'),
     'file_start':
                 [
-                 ('EGO','101','10','4','00:10:00'),
-                 ('EGO','7','1','7','00:00:42'),
+                 ('EGO','101','10','1','10:10:10'),
+                 ('EGO','91','42','2','00:05:51'),
                  ('EGO','12','10','1','00:03:46'),
                  ('EGO','32','19','2','00:03:03'),
                  ('EGO','1','0','1','01:01:01')
@@ -101,13 +101,15 @@ statecontent = {
     },
     'TITLE': {
         'text': [
+            [(10*PX,4*PX),"Pax Fabrica presents", 'white'],
             [(14*PX,8*PX),"Tetromino400", 'cyan'],
             [(14*PX,10*PX),"Tetromino400", 'blue'],
             [(14*PX,12*PX),"Tetromino400", 'magenta'],
             [(14*PX,14*PX),"Tetromino400", 'lime'],
             [(14*PX,16*PX),"Tetromino400", 'orange'],
             [(14*PX,18*PX),"Tetromino400", 'yellow'],
-            [(14*PX,20*PX),"Tetromino400", 'red']
+            [(14*PX,20*PX),"Tetromino400", 'red'],
+            [(18*PX,27*PX),"1983", 'iron']
         ]
     },
     'INTRO': {
@@ -154,18 +156,13 @@ statecontent = {
     },
     'MENU': {
         'text':[
-            [(14*PX,6*PX),"T",'lime'],
-            [(14*PX,6*PX)," e",'pink'],
-            [(14*PX,6*PX),"  t",'magenta'],
-            [(14*PX,6*PX),"   r",'purple'],
-            [(14*PX,6*PX),"    o",'yellow'],
-            [(14*PX,6*PX),"     m",'orange'],
-            [(14*PX,6*PX),"      i",'red'],
-            [(14*PX,6*PX),"       n",'crimson'],
-            [(14*PX,6*PX),"        o",'royal'],
-            [(14*PX,6*PX),"         4",'white'],
-            [(14*PX,6*PX),"          0",'olive'],
-            [(14*PX,6*PX),"           0",'green'],
+            [(14*PX,6*PX),"T",'coral'],
+            [(14*PX,6*PX)," et",'pink'],
+            [(14*PX,6*PX),"   ro",'magenta'],
+            [(14*PX,6*PX),"     mi",'purple'],
+            [(14*PX,6*PX),"       no",'magenta'],
+            [(14*PX,6*PX),"         40",'pink'],
+            [(14*PX,6*PX),"           0",'coral'],
             [(12*PX,12*PX),"Start a New Game",'lime'],
             [(12*PX,14*PX),"View Instructions",'white'],
             [(12*PX,16*PX),"View Highscores",'white'],
