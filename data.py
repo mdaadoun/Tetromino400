@@ -118,15 +118,34 @@ statecontent = {
             [(2*PX,9*PX),"3 lines =  5xlvl pts  &  3 speed pts", 'pink'],
             [(2*PX,11*PX),"4 lines =  9xlvl pts  &  1 speed pts", 'coral'],
             [(2*PX,15*PX),"Every 100 speed points :", 'red'],
-            [(3*PX,17*PX),"Jump 1 level, the speed increase !", 'silver'],
-            [(8*PX,19*PX),"There is 9 speed levels.", 'silver'],
-            [(14*PX,21*PX),"Playtime max is 1 hour.", 'silver'],
+            [(3*PX,17*PX),"Jump 1 level, the speed increase !", 'orange'],
+            [(8*PX,19*PX),"There is 9 speed levels.", 'orange'],
+            [(14*PX,21*PX),"Playtime max is 1 hour.", 'orange'],
             [(2*PX,24*PX),"Current best Score :", 'white'],
+            [(8*PX,27*PX),"*************************", 'red'],
         ]
     },
     'INPUTS': {
        'text':[
-            [(10*PX,1*PX),"HOW TO PLAY, KEYBOARD and GAMEPAD", 'yellow']
+            [(3*PX,2*PX),"HOW TO PLAY, KEYBOARD and GAMEPAD", 'yellow'],
+            [(15*PX,5*PX),"KEY", 'coral'],
+            [(15*PX,5*PX),"   BOARD", 'pink'],
+            [(4*PX,7*PX),"Use      and       keys to move.", 'white'],
+            [(4*PX,7*PX),"    LEFT     RIGHT", 'lime'],
+            [(4*PX,9*PX),"Use    key to rotate tetromino.", 'white'],
+            [(4*PX,9*PX),"    UP", 'lime'],
+            [(4*PX,11*PX),"Use       and       to go faster.", 'white'],
+            [(4*PX,11*PX),"    SPACE     ENTER", 'lime'],
+            [(4*PX,13*PX),"Use        to quit the game.", 'white'],
+            [(4*PX,13*PX),"    ESCAPE", 'red'],
+            [(15*PX,15*PX),"GAME", 'pink'],
+            [(15*PX,15*PX),"    PAD", 'coral'],
+            [(4*PX,17*PX),"Use keyboard LEFT and RIGHT", 'white'],
+            [(4*PX,19*PX),"Use keyboard LEFT and RIGHT", 'white'],
+            [(4*PX,21*PX),"Use keyboard LEFT and RIGHT", 'white'],
+            [(4*PX,23*PX),"Use keyboard LEFT and RIGHT", 'white'],
+            [(10*PX,26*PX),"Have a good game!", 'yellow'],
+            [(10*PX,27*PX),"*****************", 'red'],
        ]
     },
     'MENU': {
@@ -182,8 +201,8 @@ statecontent = {
     },
     'SCORE': {
         'text':[
-            [(15*PX,1*PX),"HIGHSCORES",'red'],
-            [(15*PX,2*PX),"**********",'yellow']
+            [(2*PX,1*PX),"************************************",'yellow'],
+            [(15*PX,2*PX),"HIGHSCORES",'red']
         ]
     },
     'CONFIRM': {
