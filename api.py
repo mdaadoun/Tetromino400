@@ -96,7 +96,6 @@ def set_file(file_name, headers):
         erase_file(file_name)
         newdata = SAVES['file_start']
         newdata.insert(0,headers)
-        print(newdata)
         write_csv(file_name,newdata)
 
 def write_csv(file_name, data):
