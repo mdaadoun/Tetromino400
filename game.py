@@ -1,6 +1,6 @@
 # game.py
 import os
-from random import randrange
+from random import randrange, randint
 from data import WIDTH, HEIGHT, GRID, LINES, COLUMNS, GSC, STATES, \
     CONTENT, COLORS, BOARD, TETROMINO, TETROMINOSHAPES, STATS, \
     ARROW, NAME, SAVES
@@ -40,6 +40,7 @@ def init_game():
     init_objects()
     init_surfaces()
     init_font()
+    init_sound()
     init_timer()
     update_screen = True
     game_state = GSC['TITLE']
@@ -80,6 +81,46 @@ def init_font():
     freetype.init()
     path = os.path.dirname(os.path.realpath(__file__))
     font = freetype.Font(f"{path}/prstartk.ttf")
+
+def init_sound():
+    global SOUNDS
+    path = os.path.dirname(os.path.realpath(__file__))
+    pygame.mixer.init()
+    pygame.mixer.music.load(f'{path}/chord-128.mp3')
+    pygame.mixer.music.play()
+    SOUNDS = {}
+    Arrowmove = pygame.mixer.Sound(f'{path}/sounds/Arrowmove.ogg')
+    SOUNDS['arrowmove'] = Arrowmove
+    Arrowselect = pygame.mixer.Sound(f'{path}/sounds/Arrowselect.ogg')
+    SOUNDS['arrowselect'] = Arrowselect
+    Blocked = pygame.mixer.Sound(f'{path}/sounds/Blocked.ogg')
+    SOUNDS['blocked'] = Blocked
+    Done = pygame.mixer.Sound(f'{path}/sounds/Done.ogg')
+    SOUNDS['done'] = Done
+    Rotate = pygame.mixer.Sound(f'{path}/sounds/Rotate.ogg')
+    SOUNDS['rotate'] = Rotate
+    Move = pygame.mixer.Sound(f'{path}/sounds/Move.ogg')
+    SOUNDS['move'] = Move
+    GameOver = pygame.mixer.Sound(f'{path}/sounds/GameOver.ogg')
+    SOUNDS['gameover'] = GameOver
+    GameStart = pygame.mixer.Sound(f'{path}/sounds/GameStart.ogg')
+    SOUNDS['gamestart'] = GameStart
+    LevelUp = pygame.mixer.Sound(f'{path}/sounds/LevelUp.ogg')
+    SOUNDS['levelup'] = LevelUp
+    Line1 = pygame.mixer.Sound(f'{path}/sounds/Line1.ogg')
+    SOUNDS['line1'] = Line1
+    Line2 = pygame.mixer.Sound(f'{path}/sounds/Line2.ogg')
+    SOUNDS['line2'] = Line2
+    Line3 = pygame.mixer.Sound(f'{path}/sounds/Line3.ogg')
+    SOUNDS['line3'] = Line3
+    lines4 = []
+    Line4_1 = pygame.mixer.Sound(f'{path}/sounds/Line4_1.ogg')
+    lines4.append(Line4_1)
+    Line4_2 = pygame.mixer.Sound(f'{path}/sounds/Line4_2.ogg')
+    lines4.append(Line4_2)
+    Line4_3 = pygame.mixer.Sound(f'{path}/sounds/Line4_3.ogg')
+    lines4.append(Line4_3)
+    SOUNDS['lines4'] = lines4
 
 def init_timer():
     global clock
@@ -188,6 +229,7 @@ def init_new_game():
     Board.pattern = Board.set_pattern()
     Tetromino.update_surface = True
     Stats.update_surface = True
+    pygame.mixer.Sound.play(SOUNDS['gamestart'])
 
 def reset_settings():
     """
@@ -248,6 +290,10 @@ def draw_highscores():
     """
     | Get the score list from the save file, sort it and write it all
     """
+    rndsnd = randint(0, 2)
+    pygame.mixer.Sound.play(SOUNDS['lines4'][rndsnd])
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.play()
     file_name = check_save_file()
     read = read_csv(file_name)
     x, y = 2*GRID, 4*GRID
@@ -357,12 +403,16 @@ def draw_objects():
             blit(screen, board_surface, Board.surface_position)
             updated = True
         if Stats.update_surface == True:
-            Stats.check_level()
+            Stats.check_level(SOUNDS)
             Stats.draw(stats_surface, GRID, font, DEBUG)
             blit(screen, stats_surface, Stats.surface_position)
             updated = True
         if Tetromino.update_surface == True:
-            Stats.update_score(Board.update_pattern(Tetromino.check_update(Board)))
+            Stats.update_score(
+                Board.update_pattern(
+                Tetromino.check_update(Board, SOUNDS)
+                ), SOUNDS
+            )
             draw_tetromino()
             updated = True
     if Arrow.update_surface == True:
@@ -437,6 +487,7 @@ def game_over():
     Tetromino.game_over = False
     Stats.game_over = False
     update_screen = True
+    pygame.mixer.Sound.play(SOUNDS['gameover'])
 
 def goto_menu():
     """
@@ -486,6 +537,7 @@ def validation_key():
         update_screen = True
         init_new_game()
     elif game_state == GSC['MENU']:
+        pygame.mixer.Sound.play(SOUNDS['arrowselect'])
         game_state = Arrow.target
         if not game_state == GSC['EXIT']:
             update_screen = True
@@ -527,6 +579,7 @@ def move_key(key):
     | The Stats score is updated if a Tetromino return completed lines
     """
     if game_state == GSC['MENU'] or game_state == GSC['NEW']:
+        pygame.mixer.Sound.play(SOUNDS['arrowmove'])
         Arrow.move(key, game_state)
         reset_arrow()
     elif game_state == GSC['PLAY']:

@@ -2,6 +2,7 @@
 from string import ascii_uppercase as alphabet
 from api import *
 import math
+from random import randint
 
 class Tetromino:
     def __init__(self, name, size, color, shape, position, debug=False):
@@ -183,7 +184,7 @@ class Tetromino:
             self.next_position = self.position
         self.move_aside = False
 
-    def check_update(self, Board):
+    def check_update(self, Board, SOUNDS):
         """
         | prepare data for collision checking :
         |   lt & lr : are the limit left and right of the board
@@ -197,15 +198,23 @@ class Tetromino:
         side_collision = self.check_side_collision(lt, lr)
         results = self.check_pattern_collision(Board)
         new_pattern = results[1]
+        ltinput = self.last_input
         if side_collision == True or results[0] == True:
+            if ltinput in [2,3]:
+                pygame.mixer.Sound.play(SOUNDS['blocked'])
             self.update = False
         elif new_pattern is not None:
+            pygame.mixer.Sound.play(SOUNDS['done'])
             self.update = False
             self.done = True
             self.jumping = False
             if self.position[1] <= 32:
                 self.game_over = True
         else:
+            if ltinput in [2,3]:
+                pygame.mixer.Sound.play(SOUNDS['move'])
+            if ltinput == 0:
+                pygame.mixer.Sound.play(SOUNDS['rotate'])
             self.update = True
         self.last_input = None
         self.update_surface = False
@@ -595,25 +604,30 @@ class Stats:
             self.time = t
             self.update_surface = True
 
-    def update_score(self,lines):
+    def update_score(self,lines, SOUNDS):
         """
         | Stats SCORE is index 3
         """
         self.lines += lines
         if lines == 1:
+            pygame.mixer.Sound.play(SOUNDS['line1'])
             self.score += 1 * self.level
             self.speed_points += 10
         if lines == 2:
+            pygame.mixer.Sound.play(SOUNDS['line2'])
             self.score += 3 * self.level
             self.speed_points += 5
         if lines == 3:
+            pygame.mixer.Sound.play(SOUNDS['line3'])
             self.score += 5 * self.level
             self.speed_points += 3
         if lines == 4:
+            rndsnd = randint(0, 2)
+            pygame.mixer.Sound.play(SOUNDS['lines4'][rndsnd])
             self.score += 10 * self.level
             self.speed_points += 1
 
-    def check_level(self):
+    def check_level(self,SOUNDS):
         """
         | Check if the level reach 100, if yes
         | Check if the level is not the last (level 9 + >100 speed points)
@@ -625,6 +639,8 @@ class Stats:
                 self.game_over = True
                 self.speed_points = 100
             else:
+                pygame.mixer.Sound.play(SOUNDS['levelup'])
+                pygame.mixer.music.play()
                 self.level += 1
                 r = sp%100
                 self.speed_points = r
