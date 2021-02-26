@@ -12,6 +12,8 @@ from api import *
 import objects
 from debug import *
 
+fullscreen = False
+
 ##################
 #                #
 # INIT PROCESSES #
@@ -49,16 +51,23 @@ def init_game():
     #####END DEBUG CODE#####
     game_loop()
 
-def init_screen():
-    global screen
-    #flags = pygame.FULLSCREEN|pygame.SCALED
-    flags = pygame.NOFRAME|pygame.SCALED
+def set_fullscreen():
+    global screen, fullscreen, update_screen
+    if fullscreen is True:
+        flags = pygame.FULLSCREEN|pygame.SCALED
+        fullscreen = False
+    else:
+        flags = pygame.NOFRAME|pygame.SCALED
+        fullscreen = True
     ####START DEBUG CODE####
     if DEBUG:
         flags = pygame.SCALED
     #####END DEBUG CODE#####
-    #if not DEBUG:
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
+    update_screen = True
+
+def init_screen():
+    set_fullscreen()
     pygame.display.set_caption(NAME)
 
 def init_font():
@@ -555,6 +564,8 @@ def check_inputs():
                 move_key(2)
             if event.key == pygame.K_RIGHT:
                 move_key(3)
+            if event.key == pygame.K_f:
+                set_fullscreen()
         if event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYAXISMOTION:
             get_gamepad_input()
     return check_exit(game_state)
