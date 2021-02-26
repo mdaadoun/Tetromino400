@@ -700,21 +700,23 @@ class Arrow:
         | 1 : DOWN
         | 2 : LEFT
         | 3 : RIGHT
+        | Add a update_surface when noted a bug with gamepad in moving arrow
         """
-        if state == 3:
-            if key == 0:
-                self.update_selection(-1)
-            elif key == 1:
-                self.update_selection(1)
-        elif state == 5:
-            if key == 0:
-                self.update_setting(1)
-            elif key == 1:
-                self.update_setting(-1)
-            elif key == 2:
-                self.update_selection(-1)
-            elif key == 3:
-                self.update_selection(1)
+        if self.update_surface == False:
+            if state == 3:
+                if key == 0:
+                    self.update_selection(-1)
+                elif key == 1:
+                    self.update_selection(1)
+            elif state == 5:
+                if key == 0:
+                    self.update_setting(1)
+                elif key == 1:
+                    self.update_setting(-1)
+                elif key == 2:
+                    self.update_selection(-1)
+                elif key == 3:
+                    self.update_selection(1)
 
     def update_setting(self, direction):
         """
