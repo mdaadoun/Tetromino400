@@ -12,7 +12,24 @@ class Tetromino:
         | name : Tetromino name (I, L, J, T, O, I, S, Z)
         | color : Tetromino color
         | alpha : The alpha color for transparency
+        | max_rotations : the number of rotation this tetromino have
+        | next_rotation : the rotation to check
+        | rotation : the current tetromino rotation
+        | next_position : the position to check
+        | position : the current position
         | volume_shape : pixel number in one shape
+        | update_surface : drawing the surface flag
+        | speed_level : the level to use with speed
+        | timer_limit : max time reference
+        | next_slide_timer : counter before next tetromino move down
+        | move_aside : Flag to signal tetromino is moving aside from input
+        |    which is priority over moving down
+        | update : Flag that need to be True for next_position and next_rotation
+        |    to become the current position and rotation
+        | done : The tetromino is on the board floor, cannot move anymore
+        | game_over : global flag to signal the game is finished
+        | last_input : the last user input used
+        | jumping : flag to control speed of the tetromino
         """
         self.Next = None
         self.surface_size = size
@@ -61,7 +78,7 @@ class Tetromino:
 
     def debug_draw_all(self):
         """
-        | draw all shapes in text from the tuple
+        | DEBUG : draw all shapes in text console from the tuple
         """
         print(self.name)
         print(self.color)
@@ -74,6 +91,9 @@ class Tetromino:
             print('****')
 
     def debug_draw(self):
+        """
+        | DEBUG : draw the current tetromino shape in text console
+        """
         print(self.name)
         print(self.color)
         print('position : ' + str(self.rotation))
@@ -112,9 +132,10 @@ class Tetromino:
 
     def slide(self, timer):
         """
-        | Use frames per seconds and speed level to keep down
-        | when using move 1 is the key for down
-        | after a check return the nb of lines with self.move or 0
+        | Use frames per seconds and speed level to decrease timer
+        | when timer is 0
+        |   reset the slide timer
+        |   return move with input 1 to move down
         """
         if self.done is not True:
             self.next_slide_timer = self.next_slide_timer - self.speed_level
@@ -124,18 +145,10 @@ class Tetromino:
 
     def move(self, direction):
         """
-        | check if next position is possible
-        | if yes :
-        | * save previous position
-        | * uptade position
-        | * play movement sound
-        | * else play the blocked sound
+        | uptade next_position for checking
         | 1 : DOWN = GO FASTER
         | 2 : LEFT = GO LEFT
         | 3 : RIGHT = GO RIGHT
-        | 4 : SPACE & RETURN = JUMP DOWN
-        | * the flag move_aside is to give priority moving aside over going down
-        | The last input is a flag when checking collision and keep input in order
         """
         if self.done is not True and self.last_input == None:
             p = self.position
@@ -154,10 +167,7 @@ class Tetromino:
 
     def rotate(self):
         """
-        | check if next rotation is possible
-        | if yes :
-        | * get the next rotation to check
-        | The last input is a flag when checking collision and keep input in order
+        | get the next rotation to check
         """
         if self.done is not True and self.last_input == None:
             self.next_rotation = (self.rotation + 1)%self.max_rotations
@@ -166,15 +176,17 @@ class Tetromino:
 
     def jump(self):
         """
-        | go down until collision, update the board
+        | switch flag to remove slide timer
         """
         if self.done is not True and self.last_input == None:
             self.jumping = True
 
     def set_update(self):
         """
-        | if the tetromino can move, update to next position and/or rotation
+        | if update flag is True
+        |   update current position/rotation with  next position and rotation
         | if not, reset next datas to current datas
+        | the reset to False of move_aside is to give back control to sliding down
         """
         if self.update == True:
             self.rotation = self.next_rotation
@@ -188,10 +200,12 @@ class Tetromino:
         """
         | prepare data for collision checking :
         |   lt & lr : are the limit left and right of the board
-        | check if tetromino can move and rotate, raise update flag if yes
-        | raise the flag self.done if the tetromino collide from the bottom
-        | return the board_collision list [Flag if collision, New Pattern]
-        | If not None, will be used by Board and Stats to update game datas
+        | Check side collision, if true, the tetromino position is not updated
+        | Check pattern collision to check contact aside or bottom of the tetromino
+        | the self.position[1] <= 32 is to check if the tetromino
+        | is not going out of board, if yes, it is game over
+        | Play sound related to player input and result
+        | return the new pattern for updating the game
         """
         lt = Board.surface_position[0]
         lr = Board.surface_position[0] + Board.width
@@ -289,7 +303,7 @@ class Tetromino:
 
     def get_tetrominos_data(self):
         """
-        | Build an dictionnary of two dictionnaries with
+        | Build a dictionnary of two dictionnaries with
         | the current & next tetrominos data necessary for checking
         | We store the positions top/left of the surface as x & y
         | We store the correct shape using rotation index as an offset
@@ -308,7 +322,7 @@ class Tetromino:
     def get_tetromino_squares_coordinates(self, tetromino):
         """
         | Get the coordinates of all the occupied squares
-        | of a  given tetromino.
+        | of a given tetromino.
         """
         grid = 8
         x = xstart = tetromino['position_x']
@@ -376,14 +390,11 @@ class Tetromino:
         | First we gather all the datas needed to check
         |    get_pattern_datas for the pattern
         |    get_tetrominos_datas for the tetrominos
-
-        |----- OLD COMMENTS TO REVIEW
-              | First we check if there is no square out of the pattern bottom limit
-        | Then we compare those two lists with each other :
-        |   If there is an identical pair, there is collision, return True
-        |     The board get the coordinates of the Tetromino to update the pattern
-        |     The game get the next Tetromino
-        |   Else, we return False and keep going.
+        | We then get the coordinates of all the squares from current and next tetromino
+        | We use the next coordinates to check collision
+        | In the case of a collision, we use the current coordinates to update the pattern
+        | Return a first flag True if there is a side collision without pattern update
+        | Return a second flag None if there is no collision (no pattern to update)
         """
         pattern = self.get_pattern_data(Board)
         tetrominos = self.get_tetrominos_data()
@@ -404,6 +415,16 @@ class Tetromino:
 
 class Board:
     def __init__(self, data):
+        """
+        | surface_size : size of the board surface
+        | surface_position : position of the board surface
+        | pattern_position : position of the pattern
+        | width : width of the surface
+        | height : height of the surface
+        | pattern_size : size of the pattern
+        | pattern : tuple with all the squares
+        | update_surface : flag to draw the board
+        """
         self.surface_size = data['surface_size']
         self.surface_position = data['surface_position']
         self.pattern_position = data['pattern_position']
@@ -416,7 +437,7 @@ class Board:
     def draw(self, surface, grid, debug=False):
         """
         | Draw the Board borders
-        | Draw the Board content
+        | Draw the Board content (pattern)
         | Draw the Grid if debug is on
         """
         self.draw_borders(surface, grid, 'iron')
@@ -424,14 +445,20 @@ class Board:
         self.update_surface = False
 
         if debug == True:
-            self.draw_grid(surface,grid,'red')
+            self.debug_draw_grid(surface,grid,'red')
 
     def draw_borders(self, surface, grid, color):
+        """
+        | draw the Board surface borders
+        """
         rectangle(surface, (0,0,grid,self.height),color)
         rectangle(surface, (grid,self.height-grid,self.width-grid,grid),color)
         rectangle(surface, (self.width-grid,0,grid,self.height-grid),color)
 
     def draw_pattern(self, surface, grid, color):
+        """
+        | Draw the game pattern on the Board surface
+        """
         x_start = x = self.pattern_position[0]
         y = self.pattern_position[1]
         columns = self.pattern_size[0]
@@ -449,7 +476,7 @@ class Board:
                 y += grid
             s += 1
 
-    def draw_grid(self, surface, grid, color):
+    def debug_draw_grid(self, surface, grid, color):
         for x in range(0, self.width, grid):
             for y in range(0, self.height, grid):
                 line(surface,(0,y), (self.width, y), color)
@@ -512,6 +539,27 @@ class Board:
 
 class Stats:
     def __init__(self, data):
+        """
+        | update_surface : the flag to draw the Stats surface
+        | surface_size : the size of the Stats surface
+        | width : widht of the Stats surface
+        | height : height of the Stats surface
+        | surface_position : position of the Stats surface
+        | next_box : position and size to draw next tetromino on Stats surface
+        | next_shape : shape of the next tetromino
+        | next_color : color of the next tetromino
+        | stats_titles : the differents heades of the Stats to display
+        | stats : the game stats as a dictionnary
+        | score : score point of current game
+        | speed_points : speed points of current game
+        | level : the level of the current game
+        | lines : numbers of lines completed on the current game
+        | time : timer of the current game
+        | name_position : position to where to display player name
+        | suffix : text to add after the name
+        | name : player name of the current game
+        | game_over : flag to signal if the game is completed
+        """
         self.update_surface = False
         self.surface_size = data['surface_size']
         self.width = data['surface_size'][0]
@@ -535,8 +583,7 @@ class Stats:
     def draw(self, surface, grid, font, debug=False):
         """
         | Draw the next tetromino box
-        | Draw the stats titles
-        | Draw the stats data
+        | Draw the stats headers and datas
         | Draw the grid if debug is on
         """
         clear(surface,'black')
@@ -545,9 +592,13 @@ class Stats:
         self.update_surface = False
 
         if debug == True:
-            self.draw_grid(surface,grid,'red')
+            self.debug_draw_grid(surface,grid,'red')
 
     def draw_next_tetromino(self, surface, grid, box):
+        """
+        | draw the borders of the next tetromino box
+        | draw the tetromino inside it, square by square
+        """
         x = box[0][0]
         y = box[0][1]
         width = box[1][0]
@@ -569,16 +620,23 @@ class Stats:
             c+=1
 
     def draw_stats(self, font, surface, grid, titles):
+        """
+        | first get the global stats in a dictionnary
+        | then draw each stat according to it's header
+        """
         stats = self.prepare_stats()
-        for stat in titles:
-            title = stat[0]
-            x = stat[1][0]
-            y = stat[1][1]
+        for data in titles:
+            title = data[0]
+            x = data[1][0]
+            y = data[1][1]
             write(font, surface, (x,y), title)
             if stats[title] is not None:
                 write(font, surface, (x,y+grid), stats[title], 'white')
 
     def prepare_stats(self):
+        """
+        | prepare dictionnary with the correct stats converted as string
+        """
         self.stats['NEXT'] = None
         self.stats['LINES'] = str(self.lines)
         self.stats['SCORE'] = str(self.score)
@@ -587,7 +645,7 @@ class Stats:
         self.stats['TIME'] = set_time_string(self.time)
         return self.stats
 
-    def draw_grid(self, surface, grid, color):
+    def debug_draw_grid(self, surface, grid, color):
         for x in range(0, self.width, grid):
             for y in range(0, self.height, grid):
                 line(surface,(0,y), (self.width, y), color)
@@ -595,7 +653,7 @@ class Stats:
 
     def update_time(self,timer):
         """
-        | Get the secondes from game ticks and up
+        | Get the seconds from game ticks and up timer every 1 sec
         """
         t = math.ceil(timer/1000)
         t = t-1
@@ -606,7 +664,8 @@ class Stats:
 
     def update_score(self,lines, SOUNDS):
         """
-        | Stats SCORE is index 3
+        | Calculate the correct score according to the number of line completed
+        | Play the related sound (random sound for line4)
         """
         self.lines += lines
         if lines == 1:
@@ -655,7 +714,20 @@ class Stats:
 class Arrow:
     def __init__(self, data):
         """
-        | update surface flag
+        | update_surface : flag to draw the arrow surface
+        | surface_size : the size of the arrow surface
+        | selection : the current arrow selected option
+        | target : the game_state the arrow have selected
+        | index_max : the maximum of options arrow can select
+        | shape : the shape of the arrow as a binary tuple
+        | color : the arrow color
+        | alpha : the transparent color chosen
+        | previous_position : previous surface position used for cleaning
+        | position : current surface position of arrow
+        | update_settings : flag to signal an option have been modified
+        | settings_position : the options data position for drawing
+        | level : the data for the level setting
+        | name : the data for the name setting
         """
         self.update_surface = False
         self.surface_size = data['surface_size']
@@ -664,7 +736,7 @@ class Arrow:
         self.index_max = 0
         self.shape = None
         self.color = None
-        self.transparent_color = data['alpha_color']
+        self.alpha = data['alpha_color']
         self.previous_position = data['start_position']
         self.position = data['start_position']
         self.update_settings = True
@@ -673,19 +745,25 @@ class Arrow:
         self.name = data['player_name']
 
     def draw(self, surface):
+        """
+        | Draw arrow on the surface
+        """
         x,y = 0,0
         for i in self.shape:
             for j in i:
                 if j == 1:
                     pixel(surface, (x,y), self.color)
                 else:
-                    pixel(surface, (x,y), self.transparent_color)
+                    pixel(surface, (x,y), self.alpha)
                 x += 1
             y += 1
             x = 0
         self.update_surface = False
 
     def draw_settings(self, surface, grid, font):
+        """
+        | Draw the settings, erase with a black rectangle, write text
+        """
         x = self.settings_position[0]
         y = self.settings_position[1]
         lvl = str(self.level)
@@ -699,6 +777,9 @@ class Arrow:
         self.update_settings = False
 
     def update_selection(self, direction):
+        """
+        | Change arrow selection inside a range between 0 and index_max
+        """
         self.selection += direction
         if self.selection < 0:
             self.selection = self.index_max
@@ -708,7 +789,7 @@ class Arrow:
 
     def move(self, key, state):
         """
-        | change position of the key
+        | change position or behavior depending the game state and input key
         | At game state Menu (3), arrows used to select an other game state
         | At game state New Game (4), arrows used to change settings  (name, speed)
         | keys :
@@ -736,10 +817,10 @@ class Arrow:
 
     def update_setting(self, direction):
         """
-        | Check if the input was up or down
-        | if the selection is level up/down of 1 the level
-        | if the selection is a letter from the name, get next letter from alphabet
-        | raise the flag to draw settings
+        | Check if the input is up or down
+        | if the selection is level : up/down of 1 the level
+        | if the selection is a letter from the name : get next letter from alphabet
+        | raise the flag to draw settings on main surface
         """
         if direction == 1:
             if self.selection == 3:
@@ -751,7 +832,7 @@ class Arrow:
                 letter = self.name[self.selection]
                 next_letter = self.get_next_letter(letter, direction)
                 self.name[self.selection] = next_letter
-        if direction == -1:
+        elif direction == -1:
             if self.selection == 3:
                 if self.level > 1:
                     self.level -= 1
@@ -765,10 +846,11 @@ class Arrow:
 
     def get_next_letter(self, letter, direction):
         """
-        | Get a letter_list from the python string ascii_uppercase
+        | Get a letter_list from the python string alphabet = ascii_uppercase
         | Retrieve the list index of the current letter
         | Change the index with the direction and check for limits
-        | Return the new letter (modified index to retrieve the corresponding letter)
+        | modify the index to retrieve the corresponding letter if selection outbounds
+        | Return the new letter
         """
         letter_list = list(alphabet)
         index = letter_list.index(letter)
