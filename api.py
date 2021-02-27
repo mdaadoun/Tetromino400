@@ -106,17 +106,17 @@ def write_csv(file_name, data):
         else:
             save_writer.writerows(data)
 
-def get_dict_from_csv(file_name):
-    csv_dict = []
-    with open(file_name, mode='r') as save_file:
-        csv_dict = csv.DictReader(save_file)
-        for row in csv_dict:
-            print(row)
-    return csv_dict
+#def get_dict_from_csv(file_name):
+#    csv_dict = []
+#    with open(file_name, mode='r') as save_file:
+#        csv_dict = csv.DictReader(save_file)
+#        for row in csv_dict:
+#            print(row)
+#    return csv_dict
 
-def send_dict_to_csv(file_name, data_dict):
-    print(file_name, data_dict)
-    print("Score is saved in the file", file_name, ".")
+#def send_dict_to_csv(file_name, data_dict):
+#    print(file_name, data_dict)
+#    print("Score is saved in the file", file_name, ".")
 
 ###########
 #         # 
