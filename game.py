@@ -13,6 +13,7 @@ import objects
 from debug import *
 
 fullscreen = False
+music = True
 
 ##################
 #                #
@@ -28,6 +29,7 @@ def init_game():
     | init_objects prepare the games objects
     | init_surfaces prepare the others game surfaces
     | init_font prepare the global font
+    | init_sound load music and sound for the game
     | init_timer prepare the global clock used for timers
     | set update_screen flag at True for the first drawing of screen surface
     | set game_state flag with GSC to give code of the first game state : TITLE
@@ -53,6 +55,9 @@ def init_game():
     game_loop()
 
 def set_fullscreen():
+    """
+    | Switch fullscreen
+    """
     global screen, fullscreen, update_screen
     if fullscreen is True:
         flags = pygame.FULLSCREEN|pygame.SCALED
@@ -66,6 +71,18 @@ def set_fullscreen():
     #####END DEBUG CODE#####
     screen = pygame.display.set_mode((WIDTH,HEIGHT), flags)
     update_screen = True
+
+def set_sound():
+    """
+    | Stop music stream, start it if it have been stopped
+    """
+    global music
+    if music is True:
+        music = False
+        pygame.mixer.music.stop()
+    else:
+        music = True
+        pygame.mixer.music.play()
 
 def init_screen():
     set_fullscreen()
@@ -83,6 +100,13 @@ def init_font():
     font = freetype.Font(f"{path}/prstartk.ttf")
 
 def init_sound():
+    """
+    | Init the mixer module
+    | Retrieve the file path of the currebt script from __file__
+    | Load the music and play it
+    | Load the different sounds and store them in global variable
+    | SOUNDS for later access
+    """
     global SOUNDS
     path = os.path.dirname(os.path.realpath(__file__))
     pygame.mixer.init()
@@ -127,6 +151,12 @@ def init_timer():
     clock = pygame.time.Clock()
 
 def init_gamepad():
+    """
+    | Init the joystick module
+    | Quit the module if no joystick connected
+    | The different gamepads are listed and the first
+    | is stored for later access
+    """
     global gamepad
     gamepad = []
     pygame.joystick.init()
@@ -136,22 +166,21 @@ def init_gamepad():
         gp.init()
         gamepad.append(gp)
     if (len(gamepad) == 0):
+        pygame.joystick.quit()
         print("No Gamepad Connected")
     else:
         for i, gp in enumerate(gamepad):
             name = gp.get_name()
             print(f"The gamepad {i+1} is named: {name}")
         print("Only the first gamepad is used.")
+        gamepad = gamepad[0]
 
 def init_objects():
     """
     | Prepare the objects the game will use
     | 3 Objects and a list of 7 Tetromino objects :
     | Arrow, Board, Stats : main game objects
-    | tetrominos : list of Tetrominos objects
-    |     The Tetromino Class Variable refers alternatively
-    |     to one of the object of the tetrominos list
-    |     First playing Tetromino is randomly chosen from this list
+    | the tetrominos are set in the init fonction
     """
     global Board, Stats, Arrow
     Arrow = objects.Arrow(ARROW)
@@ -162,6 +191,7 @@ def init_objects():
 def init_tetrominos_objects():
     """
     | All differents tetrominos are initialized in the list
+    | Each 7 tetromino types are stored in a global variable tetrominos
     """
     global tetrominos
     tetrominos = []
@@ -176,10 +206,10 @@ def init_tetrominos_objects():
 
 def init_surfaces():
     """
-    | Prepare the surfaces the game will use
+    | Prepare the surfaces the game will use in global variables
     | 4 Surfaces :
     | arrow_surface, board_surface, stats_surface, tetromino_surface
-    | set to arrow and tetromino surfaces the pink color for transparency
+    | set to arrow and tetromino surfaces a color for transparency
     """
     global arrow_surface,board_surface,stats_surface,tetromino_surface
     arrow_surface = pygame.Surface(Arrow.surface_size)
@@ -191,10 +221,12 @@ def init_surfaces():
 
 def get_next_random_tetromino():
     """
-    | Return a new object tetromino at given position
-    | randomly chosen from the tetrominos list
+    | Set the Tetromino main object with a reference to 1 of the 7 tetrominos
+    | by chosing it randomly from the tetrominos list in the global variable
     | with a random starting rotation
-    | set Tetromino.done flag as False, to start updating
+    | set Tetromino.done flag as False
+    | get the next tetromino in the current Tetromino object
+    | select a random next tetromino and send it to Stats to draw it
     """
     global Tetromino
     choice = randrange(0,len(tetrominos))
@@ -218,8 +250,8 @@ def init_new_game():
     """
     | reset the Stats data for a new game
     | get a random tetromino from list to set Tetromino object
-    | set True all game object update_surface variable to draw them on the screen
-    | game over is a flag for end game
+    | set True all game surfaces update flags to draw them on the screen
+    | Play the new game sound
     """
     global start_ticks
     start_ticks = pygame.time.get_ticks()
@@ -234,6 +266,7 @@ def init_new_game():
 def reset_settings():
     """
     | reset data to 0 and take the Arrow selection (name and level)
+    | to pass it to Stats for updating the stats surface
     """
     Stats.level = Arrow.level
     Stats.name = "".join(Arrow.name)
@@ -242,6 +275,9 @@ def reset_settings():
     Stats.lines = 0
 
 def reset_arrow():
+    """
+    | Set flags of arrow to reset config, give the default data to Arrow object
+    """
     Arrow.update_surface = True
     Arrow.update_settings = True
     Arrow.get_data(CONTENT[STATES[game_state]])
@@ -253,6 +289,10 @@ def reset_arrow():
 ####################
 
 def check_save_file():
+    """
+    | get file name and default datas for the file
+    | set_file : Check if save file exist, create it if not
+    """
     file_name = SAVES['file_name']
     options = SAVES['options']
     set_file(file_name, options)
@@ -261,7 +301,7 @@ def check_save_file():
 def save_score():
     """
     | Retrieve save data information
-    | Set the data of the last game in a tuple
+    | Set the data of the last game in a tuple if score > 0
     | Write the data as a tuple in a list of length 1 for the save file
     """
     s = Stats
@@ -288,7 +328,8 @@ def draw_best_score():
 
 def draw_highscores():
     """
-    | Get the score list from the save file, sort it and write it all
+    | Get the score list from the save file, sort it and write the 8 best
+    | Restart the music if the stream was stopped, play a random sound
     """
     rndsnd = randint(0, 2)
     pygame.mixer.Sound.play(SOUNDS['lines4'][rndsnd])
@@ -334,10 +375,7 @@ def sort_score(scorelist):
 
 def game_drawing():
     """
-    | Using differents flags
-    | Draw screen
-    | Draw objects
-    | Update display
+    | Using differents flags to redirect with the drawing function needed
     """
     global update_screen
     screen_updated = False
@@ -364,7 +402,7 @@ def reset_screen(color):
 def draw_screen():
     """
     | Draw the correct content according to game state
-    | For PLAY game state, clear the screen for object only
+    | For PLAY game state, clear the screen for object only, write player name
     | For CONFIRM, no clearing, draw confirm box over the game
     | For others game states, clear the screen then draw the text content
     """
@@ -389,11 +427,11 @@ def draw_objects():
     """
     | Draw the correct surface when flag of related object is up
     | Is the Game State is a playing state :
-    |     Draw game board
-    |     Check the speed points and draw game stats
-    |     Check score game and draw tetromino new position
+    |     Board : Draw game board
+    |     Stats : Check the speed points to change level before to draw game stats
+    |     Tetromino : Check score game and draw tetromino new position
     | For Arrow object:
-    |     Clear the surface before drawing
+    |     Clear the surface before drawing (no transparency needed)
     |     Draw the arrow to new position
     """
     updated = False
@@ -506,6 +544,7 @@ def validation_key():
     | STATES :
     | * TITLE : Title screen
     | * INTRO : Introduction screen
+    | * INPUTS : Gameplay instructions
     | * MENU : Menu screen
     | * SCORE : Highscores screen
     | * NEW : New Game screen / Start Settings
@@ -571,12 +610,11 @@ def move_key(key):
     """
     | At all states except PLAY, inputs used to move arrows
     | At game state PLAY, inputs used to interact with the tetromino
-    | 0 : UP = ROTATE TETROMINO (cw=clockwise)
-    | 1 : DOWN = GO FASTER
+    | 0 : UP = ROTATE TETROMINO (clockwise)
+    | 1 : DOWN = GO FASTER ONCE
     | 2 : LEFT = GO LEFT
     | 3 : RIGHT = GO RIGHT
-    | 4 : SPACE & RETURN = JUMP DOWN
-    | The Stats score is updated if a Tetromino return completed lines
+    | 4 : SPACE & RETURN = GO FASTER (jump)
     """
     if game_state == GSC['MENU'] or game_state == GSC['NEW']:
         pygame.mixer.Sound.play(SOUNDS['arrowmove'])
@@ -597,6 +635,7 @@ def check_inputs():
     | * the escape input
     | * the space & return input
     | * the 4 arrows input
+    | * F for fullscreen switch, S for music switch
     | * the gamepad inputs
     | check game_state to return True or False to loop running
     """
@@ -619,6 +658,8 @@ def check_inputs():
                 move_key(3)
             if event.key == pygame.K_f:
                 set_fullscreen()
+            if event.key == pygame.K_s:
+                set_sound()
         if event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYAXISMOTION:
             get_gamepad_input()
     return check_exit(game_state)
@@ -627,7 +668,7 @@ def get_gamepad_input():
     """
     | Check the used input of the gamepad
     """
-    gp = gamepad[0]
+    gp = gamepad
     #axes = gp.get_numaxes()
     #print("Number of axes: {}".format(axes))
 
