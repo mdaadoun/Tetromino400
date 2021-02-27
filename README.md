@@ -20,7 +20,8 @@ I made the game from memory, so I am not sure I differ enough from the original 
 * Play with the keyboard or with the gamepad.
 * The scores are saved in a separate file (save.csv). Display the 8 best scores on the HIGHSCORES Board. The file is generated if file not found or corrupted.
 * The game is over when 100 speed point at last level (9) are reached. Max time before game over is 1 hour, 1 minute & 1 seconde, but probably impossible to reach.
-* Use "F" to swith into fullscreen mode. (I haven't kept fullscreen by default, there is some trouble right now around fullscreen mode on Ubuntu based linux distribution, maybe you will need to compile pygame on those platform to get it working.)
+* Use "F" key to switch into fullscreen mode. (I haven't kept fullscreen by default, there is some trouble right now around fullscreen mode on Ubuntu based linux distribution, maybe you will need to compile pygame on those platform to get it working.)
+* Use "S" key to switch music on/off
 
 
 ### Contribute :
