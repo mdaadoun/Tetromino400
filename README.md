@@ -1,7 +1,6 @@
 # Tetromino400
 
-![screenshot](screenshot.png "Tetromino400")
-
+![screenshot](https://raw.githubusercontent.com/mseyne/Tetromino400/main/screenshot.png Tetromino400)
 
 ## A free and open source 80's interpretation of a famous overly copyrighted falling brick gameplay.
 

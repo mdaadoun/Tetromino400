@@ -1,1 +1,8 @@
 __pycache__
+venv
+build
+dist
+NOTE
+TODO
+save.csv
+Tetromino400.egg-info
