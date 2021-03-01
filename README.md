@@ -36,21 +36,13 @@ Also I need help to make it safely FLOSS compatible as possible, I used sounds f
 
 ### Releases :
 
-* On github as code, on Pypi as package or on itchio as a build for the Raspberry Pi 400.
-
-
-### Install the game :
-
-```
-pip install Tetromino400
-```
-* **pip3** if pip is used by python 2
+* On github as code and on itchio for the Raspberry Pi 400, see releases.
 
 
 ### Dependencies :
 
-It should work fine with a python 3.7+ version, but be careful as it requires the recent pygame 2 release (will crash with 1.9 versions).
-Probably necessary a lot of SDL libraries to install.
+It should work fine with a python 3.7+ version, but be careful as it requires the recent pygame 2 release (will crash with 1.9 versions, mostly because I use the SCALED new feature).
+Probably necessary a lot of SDL libraries to install if the game don't start.
 
 
 ### Start the game :
