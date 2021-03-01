@@ -2,7 +2,7 @@
 
 ![screenshot](https://raw.githubusercontent.com/mseyne/Tetromino400/main/screenshot.png "Tetromino400")
 
-## A free and open source 80's interpretation of a famous overly copyrighted falling brick gameplay.
+## A free and open source 80's interpretation of a famous falling brick gameplay.
 
 * Made with Python and Pygame on and for the Raspberry Pi 400.
 
